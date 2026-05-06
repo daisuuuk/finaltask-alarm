@@ -1,0 +1,499 @@
+/* ─────────────────────────────────────────
+   アラーム画面 (Alarm View)
+───────────────────────────────────────── */
+
+/* 画面全体：縦方向に並べる */
+.view-alarm {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;        /* ヘッダーを横幅いっぱいに */
+  min-height: 100svh;
+}
+
+/* ④ ヘッダー：背景色・タイマーボタン右端 */
+.alarm-header {
+  width: 100%;
+  height: var(--header-height);
+  background-color: #92F0E5;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;   /* 右端配置 */
+  padding: 0 var(--space-md);
+  flex-shrink: 0;
+}
+
+.alarm-nav-btn {
+  padding: var(--btn-padding-v) var(--btn-padding-h);
+  /* border: 2px solid var(--color-text-base); */
+  border-radius: var(--btn-radius);
+  background-color: transparent;
+  color: var(--color-text-base);
+  font-size: var(--btn-font-size);
+  font-weight: bold;
+  transition: var(--btn-transition);
+}
+
+.alarm-nav-btn:hover,
+.alarm-nav-btn:focus-visible {
+  /* background-color: rgba(255, 255, 255, 0.25); */
+  outline: none;
+}
+
+/* ① alarm-body：残りの高さを使って中央寄せ */
+.alarm-body {
+  flex: 1;                     /* ヘッダー以外の全高さを占有 */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;     /* 縦中央 */
+  gap: var(--space-lg);
+  padding: var(--space-md);
+}
+
+/* ⑤ 初期状態エリア（タイトル＋追加ボタン） */
+.alarm-initial-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.alarm-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--color-main);
+}
+
+/* アラーム追加ボタン */
+.add-btn {
+  padding: var(--btn-padding-v) var(--btn-padding-h);
+  border: 2px solid var(--color-main);
+  border-radius: var(--btn-radius);
+  background-color: var(--color-main);
+  color: var(--color-text-base);
+  font-size: var(--btn-font-size-md);
+  font-weight: bold;
+  transition: var(--btn-transition);
+}
+
+.add-btn.disabled {
+  background-color: var(--color-bg-disabled);
+  border-color: var(--color-bg-disabled);
+  color: var(--color-text-disabled);
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.add-btn:hover,
+.add-btn:focus-visible {
+  background-color: var(--color-main-dark);
+  border-color: var(--color-main-dark);
+  outline: none;
+}
+
+/* ─── 一覧エリア ─── */
+.alarm-list-section {
+  width: 100%;
+  max-width: 400px;
+}
+
+.alarm-list-section.hidden {
+  display: none;
+}
+
+/* ② ゆとり・左右端配置 */
+.list-header {
+  display: flex;
+  justify-content: space-between;  /* 左右端 */
+  align-items: center;
+  padding-bottom: var(--space-sm);
+  margin-bottom: var(--space-sm);
+}
+
+.list-header-label {
+  font-weight: 600;
+  color: var(--color-main);
+}
+
+.sub-button-area {
+  display: flex;
+  gap: 4px;
+  justify-content: flex-end;
+  min-width: 180px;              /* ← 3ボタン分の文字が収まる幅を明示 */
+}
+
+.btn {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 4px 0;
+  height: 28px;
+  border: 1.5px solid var(--color-main);
+  border-radius: var(--btn-radius);
+  background-color: var(--color-main);
+  color: var(--color-text-base);
+  font-size: 0.7rem;
+  font-weight: bold;
+  line-height: 1;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  transition: var(--btn-transition);
+}
+
+.btn:hover {
+  background-color: var(--color-main-dark);
+  border-color: var(--color-main-dark);
+}
+
+.btn.disabled,
+.btn:disabled {
+  background-color: var(--color-bg-disabled);
+  border-color: var(--color-bg-disabled);
+  color: var(--color-text-disabled);
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* ─── アラームリスト ─── */
+.alarm-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.alarm-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-sm) var(--space-md);
+  background-color: var(--color-main);
+  border-radius: var(--btn-radius);
+  cursor: pointer;
+  transition: var(--btn-transition);
+}
+
+.alarm-item.selected {
+  background-color: var(--color-main-dark);
+}
+
+.alarm-time {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: var(--color-text-base);
+}
+
+/* ─── トグルボタン ─── */
+.toggle-btn {
+  width: 50px;
+  height: 26px;
+  background: var(--color-bg-disabled);
+  border-radius: 13px;
+  position: relative;
+  border: none;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.toggle-btn::before {
+  content: "";
+  width: 22px;
+  height: 22px;
+  background: white;
+  border-radius: 50%;
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  transition: transform 0.3s;
+}
+
+.toggle-btn.active {
+  background-color: #1a73e8;
+}
+
+.toggle-btn.active::before {
+  transform: translateX(24px);
+}
+
+/* ─────────────────────────────────────────
+   モーダル
+───────────────────────────────────────── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-overlay.hidden {
+  display: none;
+}
+
+.modal-box {
+  background: white;
+  padding: var(--space-lg);
+  border-radius: 10px;
+  width: 280px;
+  text-align: center;
+}
+
+.time-row {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: var(--space-lg);
+}
+
+.time-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.time-block label {
+  font-size: var(--btn-font-size);
+  color: var(--color-main);
+  font-weight: 600;
+}
+
+select {
+  width: 80px;
+  padding: var(--space-xs);
+  border: 2px solid var(--color-main);
+  border-radius: var(--btn-radius);
+}
+
+.button-row {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-xl);
+}
+
+.modal-btn {
+  padding: var(--btn-padding-v) var(--btn-padding-h);
+  border-radius: var(--btn-radius);
+  font-size: var(--btn-font-size);
+  font-weight: 500;
+  border: 2px solid var(--color-main);
+  transition: var(--btn-transition);
+}
+
+.modal-btn--save {
+  background-color: var(--color-main);
+  color: var(--color-text-base);
+}
+
+.modal-btn--save:hover {
+  background-color: var(--color-main-dark);
+  border-color: var(--color-main-dark);
+}
+
+.modal-btn--cancel {
+  background-color: transparent;
+  color: var(--color-main);
+}
+
+.modal-btn--cancel:hover {
+  background-color: var(--color-main);
+  color: var(--color-text-base);
+}
+
+/* =============================================================================
+   時間管理アプリ — グローバルスタイル
+   design token → layout → component の順に記述
+   モバイルファースト (375px / 768px / 1200px)
+   ============================================================================= */
+
+/* ─────────────────────────────────────────
+   1. デザイントークン (CSS カスタムプロパティ)
+───────────────────────────────────────── */
+:root {
+  /* カラー */
+  --color-main: #92f0e5;             /* メインカラー */
+  --color-main-dark: #5cd6c8;        /* ホバー・フォーカス時 */
+
+  --color-text-base: #ffffff;        /* 基本文字色 */
+  --color-text-disabled: #cddddb;    /* グレースケール時文字色 */
+  --color-bg-disabled: #acb6b7;      /* グレースケール時背景色 */
+
+  --color-bg-page: #f0fdfb;          /* ページ背景（スクリーンショットの白に近い淡い色） */
+
+  /* ラップリスト グラデーション用 (上=濃、下=淡) */
+  --lap-1-bg: #92f0e5;               /* 最新 (1番上) */
+  --lap-1-text: #ffffff;
+  --lap-2-bg: #a8f3ea;
+  --lap-2-text: #eefdfb;
+  --lap-3-bg: #bcf6ee;
+  --lap-3-text: #92f0e5;
+  --lap-4-bg: #d0f9f3;
+  --lap-4-text: #7accbf;
+  --lap-5-bg: #e4fcf8;               /* 最古 (5番目) */
+  --lap-5-text: #5ab8ab;
+
+  /* フォント */
+  --font-base: 'Inter', system-ui, sans-serif;
+  --font-mono: 'Inter', ui-monospace, 'Courier New', monospace;
+
+  /* スペーシング */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 40px;
+
+  /* ボタン */
+  --btn-radius: 6px;
+  --btn-padding-v: 8px;
+  --btn-padding-h: 18px;
+  --btn-font-size: 0.85rem;
+  --btn-font-size-md: 0.9rem;
+  --btn-transition: background-color 0.2s ease, color 0.2s ease,
+    border-color 0.2s ease, opacity 0.2s ease;
+
+  /* ヘッダー高さ */
+  --header-height: 40px;
+}
+
+/* ─────────────────────────────────────────
+   2. リセット / ベース
+───────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  font-family: var(--font-base);
+  background-color: var(--color-bg-page);
+  /* 要素の文字色は各コンポーネントで個別指定する */
+  min-height: 100svh;
+}
+
+ul,
+ol {
+  list-style: none;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+  font-family: inherit;
+  border: none;
+  background: none;
+}
+
+/* ─────────────────────────────────────────
+   3. レイアウト — #app ラッパー
+───────────────────────────────────────── */
+#app {
+  width: 100%;
+  min-height: 100svh;
+}
+
+/* ─────────────────────────────────────────
+   4. ビュー管理ユーティリティ
+   TypeScript が .view-hidden を付け外して切替
+───────────────────────────────────────── */
+.view {
+  width: 100%;
+  min-height: 100svh;
+}
+
+.view-hidden {
+  display: none !important;
+}
+
+/* ─────────────────────────────────────────
+   5. 初期画面 (Home View)
+───────────────────────────────────────── */
+.view-home {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-bg-page);
+  /* スクリーンショットに合わせ上部にメインカラーのライン */
+  /* border-top: 8px solid var(--color-main); */
+}
+
+/* コンテナ: 中央揃え */
+.home-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-lg);
+  padding: var(--space-xl) var(--space-md);
+  width: 100%;
+  max-width: 400px;
+}
+
+/* タイトル */
+.home-title {
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: var(--color-main);
+  letter-spacing: 0.02em;
+  text-align: center;
+}
+
+/* ナビゲーション */
+.home-nav {
+  width: 100%;
+}
+
+/* メニュー */
+.home-menu {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  align-items: center;
+  width: 100%;
+}
+
+/* メニューボタン */
+.home-menu-btn {
+  display: block;
+  width: 200px;
+  padding: var(--btn-padding-v) var(--btn-padding-h);
+  border: 2px solid var(--color-main);
+  border-radius: var(--btn-radius);
+  background-color: var(--color-main);
+  color: var(--color-text-base);
+  font-size: var(--btn-font-size);
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-align: center;
+  transition: var(--btn-transition);
+}
+
+.home-menu-btn:hover,
+.home-menu-btn:focus-visible {
+  background-color: var(--color-main-dark);
+  border-color: var(--color-main-dark);
+  outline: none;
+}
+
+.home-menu-btn:focus-visible {
+  box-shadow: 0 0 0 3px rgba(146, 240, 229, 0.4);
+}
+
+
+
+/* 非表示 */
+.hidden {
+  display: none;
+}

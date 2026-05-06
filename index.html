@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <title>アラーム</title>
+  <link rel="stylesheet" href="./src/style.css">
+</head>
+
+<body>
+
+  <!-- メイン(固定エリア) -->
+  <div id="app">
+    <!-- =============================================
+           初期画面 (Home View)
+           TypeScript で data-view="home" を参照し
+           表示/非表示を切り替える
+      ============================================= -->
+    <main id="view-home" class="view view-home" aria-label="ホーム画面">
+      <div class="home-container">
+        <h1 class="home-title">時間管理アプリ</h1>
+
+        <nav class="home-nav" aria-label="機能選択">
+          <ul class="home-menu" role="list">
+            <li>
+              <button id="btn-go-timer" class="home-menu-btn" type="button" data-target="timer" aria-label="タイマー画面へ移動">
+                タイマー
+              </button>
+            </li>
+            <li>
+              <button id="btn-go-alarm" class="home-menu-btn" type="button" data-target="alarm" aria-label="アラーム画面へ移動">
+                アラーム
+              </button>
+            </li>
+            <!-- <li>
+              <button id="btn-go-stopwatch" class="home-menu-btn" type="button" data-target="stopwatch"
+                aria-label="ストップウォッチ画面へ移動">
+                ストップウォッチ
+              </button>
+            </li> -->
+          </ul>
+        </nav>
+      </div>
+    </main>
+
+    <!-- =============================================
+           アラーム画面 (Alarm View)
+           TypeScript で data-view="alarm" を参照し
+           表示/非表示を切り替える
+      ============================================= -->
+
+  <main id="alarm-container" class="view view-alarm view-hidden" aria-label="アラーム画面">
+
+    <!-- ④ ヘッダー：背景色あり・タイマーボタン右端 -->
+    <div class="alarm-header">
+      <button class="alarm-nav-btn" type="button" data-target="timer" aria-label="タイマー画面へ移動">
+        タイマー
+      </button>
+    </div>
+  
+    <!-- ① alarm-body を画面中央付近に -->
+    <div class="alarm-body">
+  
+      <!-- ⑤ 「アラーム」タイトルを初期状態エリアへ -->
+      <div class="alarm-initial-area">
+        <h1 class="alarm-title">アラーム</h1>
+        <div id="button-area"></div>
+      </div>
+  
+      <!-- アラーム一覧エリア -->
+      <div id="listSection" class="alarm-list-section hidden">
+        <!-- ② ゆとり・左右端配置 -->
+        <div class="list-header">
+          <span class="list-header-label">アラーム一覧</span>
+          <!-- ③ 細長いボタン群 -->
+          <div id="sub-button-area" class="sub-button-area"></div>
+        </div>
+        <ul id="alarmList" class="alarm-list"></ul>
+      </div>
+  
+    </div>
+  </main>
+  
+  <!-- モーダル -->
+  <div id="modalOverlay" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-label="アラーム設定">
+    <div class="modal-box">
+      <div class="time-row">
+        <div class="time-block">
+          <label for="hour">時間</label>
+          <select id="hour"></select>
+        </div>
+        <div class="time-block">
+          <label for="minute">分</label>
+          <select id="minute"></select>
+        </div>
+      </div>
+      <div class="button-row">
+        <button id="CANCEL" type="button" class="modal-btn modal-btn--cancel">キャンセル</button>
+        <button id="SAVE"   type="button" class="modal-btn modal-btn--save">保存</button>
+      </div>
+    </div>
+  </div>
+
+<!-- =============================================
+           タイマー画面 (Timer View)
+           TypeScript で data-view="timer" を参照し
+           表示/非表示を切り替える
+      ============================================= -->
+<main id="timer-container" class="view-hidden">
+  <header class="timer-header">
+      <nav class="timer-nav">
+          <ul class="timer-nav-list">
+              <li>
+                  <a class="timer-nav-link" data-target="timer" href="#">
+                      タイマー
+                  </a>
+              </li>
+              <li>
+                  <a class="timer-nav-link" data-target="stopwatch" href="#">
+                      ストップウォッチ
+                  </a>
+              </li>
+              <li>
+                  <a class="timer-nav-link" data-target="alarm" href="#">
+                      アラーム
+                  </a>
+              </li>
+          </ul>
+      </nav>
+  </header>
+  <!-- メインコンテンツ -->
+  <div class="timer-content">
+      <!-- 画面タイトル -->
+      <p class="timer-title">タイマー</p>
+      <!-- 経過時間表示エリア -->
+      <div id="timer-display">00:00:00</div>
+      <!-- 終了通知ダイアログボックスエリア -->
+      <div id="timer-dialog" class="hidden">
+          <div class="timer-dialog-box">
+              <p class="timer-dialog-message">タイマーが終了しました</p>
+              <div class="timer-dialog-buttons">
+                  <button id="dialog-stop-button" class="timer-dialog-button">停止</button>
+                  <button id="dialog-reset-button" class="timer-dialog-button">リセット</button>
+              </div>
+          </div>
+      </div>
+
+      <!-- 時・分・秒の入力エリア -->
+      <div id="timer-input-group">
+          <div class="timer-input-item">
+              <label for="timer-hour">時</label>
+              <select id="timer-hour" name="hour"></select>
+          </div>
+
+          <div class="timer-input-item">
+              <label for="timer-minute">分</label>
+              <select id="timer-minute" name="minute"></select>
+          </div>
+
+          <div class="timer-input-item">
+              <label for="timer-second">秒</label>
+              <select id="timer-second" name="second"></select>
+          </div>
+
+      </div>
+
+      <!-- ボタンはtsで作る -->
+      <div id="timer-controls"></div>
+      <div class="timer-list-container">
+      <div id="timer-actions">
+          <p id="saved-timer-title">タイマー一覧</p>
+          <div class="timer-action-buttons">
+          <div id="timer-save"></div>
+          <div id="timer-delete"></div>
+          <div id="timer-select"></div>
+          </div>
+      </div>
+
+      <ul id="saved-timer-list"></ul>
+      </div>
+  </div>
+
+
+</main>
+
+  <!-- モーダル　初期は非表示 -->
+  <!-- <div id="alarm-modal" class="modal hidden">
+    <div class="modal-content">
+      <p>過去の未処理アラームがあります</p>
+
+      <button id="close-btn">閉じる</button>
+    </div>
+  </div> -->
+
+  <!-- renderRule（エラーメッセージ表示） -->
+  <div id="ruleMessage" class="hidden" style="color:red"></div>
+
+  <script type="module" src="/src/main.ts" defer></script>
+</body>
+
+</html>

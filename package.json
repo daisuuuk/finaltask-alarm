@@ -1,0 +1,22 @@
+{
+  "name": "alarm",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "test": "vitest",
+    "test:ui": "vitest --ui"
+  },
+  "devDependencies": {
+    "@types/node": "^25.6.0",
+    "@vitest/ui": "^4.1.5",
+    "jsdom": "^29.0.2",
+    "typescript": "~6.0.2",
+    "vite": "^8.0.4",
+    "vite-tsconfig-paths": "^6.1.1",
+    "vitest": "^4.1.5"
+  }
+}
