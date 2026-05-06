@@ -6,6 +6,10 @@ import { TimeFormatter } from "../common/TimeFormatter";
 export class DomDisplay implements IDisplay {
     private formatter: TimeFormatter;
 
+    constructor(formatter: TimeFormatter) {
+        this.formatter = formatter;
+    }
+
     renderInitial(): void { }
     // { this.content.innerHTML = "<p>アラームはまだありません</p>"; }
 
@@ -42,7 +46,7 @@ export class EditDisplay implements IEditDisplay {
         console.log(
             [...hour.options].map(o => o.value)
         );
-        console.log(minute.value); 
+        console.log(minute.value);
 
         showModal();
     }
