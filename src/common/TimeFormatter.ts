@@ -6,7 +6,7 @@ import { AlarmTime } from "../domain/AlarmTime";
  */
 export class TimeFormatter {
     // 秒を "MM:SS" 形式にフォーマットする。タイマー向け
-    formatSeconds(seconds: number): string {}
+    // formatSeconds(seconds: number): string {}
 
     // 時・分を "HH:MM" 形式にフォーマットする。アラーム向け
     formatHourMinute(time: AlarmTime): string {
