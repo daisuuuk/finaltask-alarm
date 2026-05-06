@@ -6,10 +6,10 @@ import { Alarm } from "../domain/Alarm";
  */
 export class TimeScheduler {
     // 内部状態を保持するメンバー変数
-    private alarm: Alarm;
+    private alarm!: Alarm;
     private timerId: number | null = null;
     // アラームIDごとにタイマーを管理する箱
-    private scduler: schedulerMap<string, number>;
+    // private scheduler: schedulerMap<string, number>;
     // 鳴動条件も
     // + monitorAlarmTime(alarm: Alarm): void
 

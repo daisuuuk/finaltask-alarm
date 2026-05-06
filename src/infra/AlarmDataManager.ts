@@ -45,11 +45,11 @@ export class AlarmDataManager {
     /**
      * アラームのデータを全件削除する為のメソッド
      */
-    public resetAll(): Alarm[] {
+    // public resetAll(): Alarm[] {
         // 下記１行は保存前の各処理⇩⇩
         // - this.alarms = [];
         // - this.persistToStorage();
-    }
+    // }
 
     /**
      * アラームのデータを１件削除する為のメソッド

@@ -20,8 +20,11 @@ const dataManager = new AlarmDataManager(storage);
 
 const alarmList = new AlarmList();
 
+const scheduler = new TimeScheduler();
+const sound = new SoundPlayer();
+
 const managerService = new ManagerService(alarmList, dataManager);
-const executionService = new ExecutionService()
+const executionService = new ExecutionService(scheduler, sound)
 
 const editDisplay = new EditDisplay();
 const addDisplay = new AddDisplay();
