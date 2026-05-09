@@ -23,8 +23,11 @@ export class DomDisplay implements IDisplay {
  * @returns 
  */
 function showModal(): void {
-    const overlay = document.getElementById("modalOverlay");
-    if (!overlay) return;
+    const overlay = document.getElementById("alarm-modal-overlay");
+    console.log(`${overlay}`);
+    if (!overlay) { 
+        return;
+    }
 
     // 表示
     overlay.classList.remove("hidden");
@@ -32,8 +35,8 @@ function showModal(): void {
 
 export class EditDisplay implements IEditDisplay {
     renderEdit(alarm: Alarm): void {
-        const hour = document.getElementById("hour") as HTMLSelectElement;
-        const minute = document.getElementById("minute") as HTMLSelectElement;
+        const hour = document.getElementById("alarm-hour") as HTMLSelectElement;
+        const minute = document.getElementById("alarm-minute") as HTMLSelectElement;
 
         if (!hour || !minute) {
             return;
@@ -61,8 +64,8 @@ export class AddDisplay implements IAddDisplay {
     // ③ 追加画面を描画
     // renderAdd(onSave: () => void): void {
     renderAdd(): void {
-        const hour = document.getElementById("hour") as HTMLSelectElement;
-        const minute = document.getElementById("minute") as HTMLSelectElement;
+        const hour = document.getElementById("alarm-hour") as HTMLSelectElement;
+        const minute = document.getElementById("alarm-minute") as HTMLSelectElement;
 
         if (!hour || !minute) {
             return;
@@ -83,7 +86,7 @@ export class RuleDisplay implements IRuleDisplay {
      */
     renderRule(message: string): void {
         console.log("renderRule呼ばれた");
-        const element = document.getElementById("ruleMessage");
+        const element = document.getElementById("alarm-rule-message");
         if (!element) {
             return;
         }
@@ -96,8 +99,8 @@ export class RuleDisplay implements IRuleDisplay {
 export class ListDisplay implements IListDisplay {
     renderList(alarms: Alarm[], selectedIds: Set<string>): void {
         // ①HTMLから要素を取得
-        const listSection = document.getElementById("listSection");
-        const list = document.getElementById("alarmList");
+        const listSection = document.getElementById("alarm-list-section");
+        const list = document.getElementById("alarm-list");
 
         // ②ガード　なければ早期リターン
         if (!listSection || !list) {
@@ -130,7 +133,7 @@ export class ListDisplay implements IListDisplay {
             return `
             <li class="alarm-item ${selected}" data-id="${alarm.getId()}">
                 <span>${text}</span>
-                <button class="toggle-btn ${active}"></button>
+                <button class="alarm-toggle-btn ${active}"></button>
             </li>
         `;
         }).join("");

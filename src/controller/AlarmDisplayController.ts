@@ -112,7 +112,7 @@ export class AlarmDisplayController {
     }
 
     private setupModalEvent(): void {
-        const overlay = document.getElementById("modalOverlay");
+        const overlay = document.getElementById("alarm-modal-overlay");
         const saveBtn = document.getElementById("SAVE");
         const cancelBtn = document.getElementById("CANCEL");
 
@@ -134,8 +134,8 @@ export class AlarmDisplayController {
      * アラーム追加時の「時間・分」のセレクト生成
      */
     private createAlarmTimeSelect(): void {
-        const hourSelect = document.getElementById("hour") as HTMLSelectElement;
-        const minuteSelect = document.getElementById("minute") as HTMLSelectElement;
+        const hourSelect = document.getElementById("alarm-hour") as HTMLSelectElement;
+        const minuteSelect = document.getElementById("alarm-minute") as HTMLSelectElement;
 
         // 0〜23
         for (let i = 0; i < 24; i++) {
@@ -439,7 +439,7 @@ export class AlarmDisplayController {
             const target = element.target as HTMLElement;
 
             // トグルボタン(ON/OFF切替)
-            if (target.classList.contains("toggle-btn")) {
+            if (target.classList.contains("alarm-toggle-btn")) {
                 // 「stopPropagation()」 = イベントが親に伝わるのを止める役割(イベントバブリングを防ぐ)
                 element.stopPropagation();
                 console.log("トグル");
@@ -510,8 +510,8 @@ export class AlarmDisplayController {
      * @returns 
      */
     private getSelectedTime(): AlarmTime {
-        const hourInput = document.getElementById("hour") as HTMLInputElement;
-        const minuteInput = document.getElementById("minute") as HTMLInputElement;
+        const hourInput = document.getElementById("alarm-hour") as HTMLInputElement;
+        const minuteInput = document.getElementById("alarm-minute") as HTMLInputElement;
 
         const hour = Number(hourInput.value);
         const minute = Number(minuteInput.value);

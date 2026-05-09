@@ -49,57 +49,51 @@
            表示/非表示を切り替える
       ============================================= -->
 
-  <main id="alarm-container" class="view view-alarm view-hidden" aria-label="アラーム画面">
+      <main id="alarm-container" class="view view-alarm view-hidden" aria-label="アラーム画面">
 
-    <!-- ④ ヘッダー：背景色あり・タイマーボタン右端 -->
-    <div class="alarm-header">
-      <button class="alarm-nav-btn" type="button" data-target="timer" aria-label="タイマー画面へ移動">
-        タイマー
-      </button>
-    </div>
-  
-    <!-- ① alarm-body を画面中央付近に -->
-    <div class="alarm-body">
-  
-      <!-- ⑤ 「アラーム」タイトルを初期状態エリアへ -->
-      <div class="alarm-initial-area">
-        <h1 class="alarm-title">アラーム</h1>
-        <div id="button-area"></div>
-      </div>
-  
-      <!-- アラーム一覧エリア -->
-      <div id="listSection" class="alarm-list-section hidden">
-        <!-- ② ゆとり・左右端配置 -->
-        <div class="list-header">
-          <span class="list-header-label">アラーム一覧</span>
-          <!-- ③ 細長いボタン群 -->
-          <div id="sub-button-area" class="sub-button-area"></div>
+        <div class="alarm-header">
+          <button class="alarm-nav-btn" type="button" data-target="timer" aria-label="タイマー画面へ移動">
+            タイマー
+          </button>
         </div>
-        <ul id="alarmList" class="alarm-list"></ul>
-      </div>
-  
-    </div>
-  </main>
-  
-  <!-- モーダル -->
-  <div id="modalOverlay" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-label="アラーム設定">
-    <div class="modal-box">
-      <div class="time-row">
-        <div class="time-block">
-          <label for="hour">時間</label>
-          <select id="hour"></select>
+      
+        <div class="alarm-body">
+      
+          <div class="alarm-initial-area">
+            <h1 class="alarm-title">アラーム</h1>
+            <div id="alarm-button-area"></div>
+          </div>
+      
+          <div id="alarm-list-section" class="alarm-list-section hidden">
+            <div class="alarm-list-header">
+              <span class="alarm-list-header-label">アラーム一覧</span>
+              <div id="alarm-sub-button-area" class="alarm-sub-button-area"></div>
+            </div>
+            <ul id="alarm-list" class="alarm-list"></ul>
+          </div>
+      
         </div>
-        <div class="time-block">
-          <label for="minute">分</label>
-          <select id="minute"></select>
+      </main>
+      
+      <!-- モーダル -->
+      <div id="alarm-modal-overlay" class="alarm-modal-overlay hidden" role="dialog" aria-modal="true" aria-label="アラーム設定">
+        <div class="alarm-modal-box">
+          <div class="alarm-time-row">
+            <div class="alarm-time-block">
+              <label for="alarm-hour">時間</label>
+              <select id="alarm-hour"></select>
+            </div>
+            <div class="alarm-time-block">
+              <label for="alarm-minute">分</label>
+              <select id="alarm-minute"></select>
+            </div>
+          </div>
+          <div class="alarm-button-row">
+            <button id="CANCEL" type="button" class="alarm-modal-btn alarm-modal-btn--cancel">キャンセル</button>
+            <button id="SAVE"   type="button" class="alarm-modal-btn alarm-modal-btn--save">保存</button>
+          </div>
         </div>
       </div>
-      <div class="button-row">
-        <button id="CANCEL" type="button" class="modal-btn modal-btn--cancel">キャンセル</button>
-        <button id="SAVE"   type="button" class="modal-btn modal-btn--save">保存</button>
-      </div>
-    </div>
-  </div>
 
 <!-- =============================================
            タイマー画面 (Timer View)
@@ -193,7 +187,7 @@
   </div> -->
 
   <!-- renderRule（エラーメッセージ表示） -->
-  <div id="ruleMessage" class="hidden" style="color:red"></div>
+  <div id="alarm-rule-message" class="hidden" style="color:red"></div>
 
   <script type="module" src="/src/main.ts" defer></script>
 </body>

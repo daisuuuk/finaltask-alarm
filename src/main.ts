@@ -42,14 +42,14 @@ const ui = new AlarmDisplayController(
 );
 
 // ① 親要素を取得
-const mainArea = document.getElementById("button-area");
+const mainArea = document.getElementById("alarm-button-area");
 if (!mainArea) {
-  throw new Error("button-areaが存在しない");
+  throw new Error("alarm-button-areaが存在しない");
 }
 
-const subArea = document.getElementById("sub-button-area");
+const subArea = document.getElementById("alarm-sub-button-area");
 if (!subArea) {
-  throw new Error("sub-button-areaが存在しない");
+  throw new Error("alarm-sub-button-areaが存在しない");
 }
 
 // ② Button生成 + 登録 + 配置
@@ -83,27 +83,27 @@ function createButton(type: ButtonType): Button {
     case Buttons.ADD:
       return new Button({
         text: "アラームを追加+",
-        className: "add-btn"
+        className: "alarm-add-btn"
       });
 
     case Buttons.EDIT:
       return new Button({
         text: "編集",
-        className: "btn",
+        className: "alarm-btn",
         disabled: true
       });
 
     case Buttons.DELETE:
       return new Button({
         text: "削除(一括)",
-        className: "btn",
+        className: "alarm-btn",
         disabled: true
       });
 
     case Buttons.CLEAR:
       return new Button({
         text: "一括解除",
-        className: "btn",
+        className: "alarm-btn",
         disabled: true
       });
 
