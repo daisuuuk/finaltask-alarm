@@ -2,9 +2,15 @@
 <html lang="ja">
 
 <head>
-  <meta charset="UTF-8">
-  <title>アラーム</title>
-  <link rel="stylesheet" href="./src/style.css">
+  <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="タイマー・アラーム・ストップウォッチを備えた時間管理アプリ。業務の効率的な時間管理をサポートします。" />
+    <title>時間管理アプリ</title>
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
 </head>
 
 <body>
@@ -49,133 +55,134 @@
            表示/非表示を切り替える
       ============================================= -->
 
-      <main id="alarm-container" class="view view-alarm view-hidden" aria-label="アラーム画面">
+    <main id="alarm-container" class="view view-alarm view-hidden" aria-label="アラーム画面">
 
-        <div class="alarm-header">
-          <button class="alarm-nav-btn" type="button" data-target="timer" aria-label="タイマー画面へ移動">
-            タイマー
-          </button>
-        </div>
-      
-        <div class="alarm-body">
-      
-          <div class="alarm-initial-area">
-            <h1 class="alarm-title">アラーム</h1>
-            <div id="alarm-button-area"></div>
-          </div>
-      
-          <div id="alarm-list-section" class="alarm-list-section hidden">
-            <div class="alarm-list-header">
-              <span class="alarm-list-header-label">アラーム一覧</span>
-              <div id="alarm-sub-button-area" class="alarm-sub-button-area"></div>
-            </div>
-            <ul id="alarm-list" class="alarm-list"></ul>
-          </div>
-      
-        </div>
-      </main>
-      
-      <!-- モーダル -->
-      <div id="alarm-modal-overlay" class="alarm-modal-overlay hidden" role="dialog" aria-modal="true" aria-label="アラーム設定">
-        <div class="alarm-modal-box">
-          <div class="alarm-time-row">
-            <div class="alarm-time-block">
-              <label for="alarm-hour">時間</label>
-              <select id="alarm-hour"></select>
-            </div>
-            <div class="alarm-time-block">
-              <label for="alarm-minute">分</label>
-              <select id="alarm-minute"></select>
-            </div>
-          </div>
-          <div class="alarm-button-row">
-            <button id="CANCEL" type="button" class="alarm-modal-btn alarm-modal-btn--cancel">キャンセル</button>
-            <button id="SAVE"   type="button" class="alarm-modal-btn alarm-modal-btn--save">保存</button>
-          </div>
-        </div>
+      <div class="alarm-header">
+        <button class="alarm-nav-btn" type="button" data-target="timer" aria-label="タイマー画面へ移動">
+          タイマー
+        </button>
       </div>
 
-<!-- =============================================
+      <div class="alarm-body">
+
+        <div class="alarm-initial-area">
+          <h1 class="alarm-title">アラーム</h1>
+          <div id="alarm-button-area"></div>
+        </div>
+
+        <div id="alarm-list-section" class="alarm-list-section hidden">
+          <div class="alarm-list-header">
+            <span class="alarm-list-header-label">アラーム一覧</span>
+            <div id="alarm-sub-button-area" class="alarm-sub-button-area"></div>
+          </div>
+          <ul id="alarm-list" class="alarm-list"></ul>
+        </div>
+
+      </div>
+    </main>
+
+    <!-- モーダル -->
+    <div id="alarm-modal-overlay" class="alarm-modal-overlay hidden" role="dialog" aria-modal="true"
+      aria-label="アラーム設定">
+      <div class="alarm-modal-box">
+        <div class="alarm-time-row">
+          <div class="alarm-time-block">
+            <label for="alarm-hour">時間</label>
+            <select id="alarm-hour"></select>
+          </div>
+          <div class="alarm-time-block">
+            <label for="alarm-minute">分</label>
+            <select id="alarm-minute"></select>
+          </div>
+        </div>
+        <div class="alarm-button-row">
+          <button id="CANCEL" type="button" class="alarm-modal-btn alarm-modal-btn--cancel">キャンセル</button>
+          <button id="SAVE" type="button" class="alarm-modal-btn alarm-modal-btn--save">保存</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- =============================================
            タイマー画面 (Timer View)
            TypeScript で data-view="timer" を参照し
            表示/非表示を切り替える
       ============================================= -->
-<main id="timer-container" class="view-hidden">
-  <header class="timer-header">
-      <nav class="timer-nav">
+    <main id="timer-container" class="view-hidden">
+      <header class="timer-header">
+        <nav class="timer-nav">
           <ul class="timer-nav-list">
-              <li>
-                  <a class="timer-nav-link" data-target="timer" href="#">
-                      タイマー
-                  </a>
-              </li>
-              <li>
-                  <a class="timer-nav-link" data-target="stopwatch" href="#">
-                      ストップウォッチ
-                  </a>
-              </li>
-              <li>
-                  <a class="timer-nav-link" data-target="alarm" href="#">
-                      アラーム
-                  </a>
-              </li>
+            <li>
+              <a class="timer-nav-link" data-target="timer" href="#">
+                タイマー
+              </a>
+            </li>
+            <li>
+              <a class="timer-nav-link" data-target="stopwatch" href="#">
+                ストップウォッチ
+              </a>
+            </li>
+            <li>
+              <a class="timer-nav-link" data-target="alarm" href="#">
+                アラーム
+              </a>
+            </li>
           </ul>
-      </nav>
-  </header>
-  <!-- メインコンテンツ -->
-  <div class="timer-content">
-      <!-- 画面タイトル -->
-      <p class="timer-title">タイマー</p>
-      <!-- 経過時間表示エリア -->
-      <div id="timer-display">00:00:00</div>
-      <!-- 終了通知ダイアログボックスエリア -->
-      <div id="timer-dialog" class="hidden">
+        </nav>
+      </header>
+      <!-- メインコンテンツ -->
+      <div class="timer-content">
+        <!-- 画面タイトル -->
+        <p class="timer-title">タイマー</p>
+        <!-- 経過時間表示エリア -->
+        <div id="timer-display">00:00:00</div>
+        <!-- 終了通知ダイアログボックスエリア -->
+        <div id="timer-dialog" class="hidden">
           <div class="timer-dialog-box">
-              <p class="timer-dialog-message">タイマーが終了しました</p>
-              <div class="timer-dialog-buttons">
-                  <button id="dialog-stop-button" class="timer-dialog-button">停止</button>
-                  <button id="dialog-reset-button" class="timer-dialog-button">リセット</button>
-              </div>
+            <p class="timer-dialog-message">タイマーが終了しました</p>
+            <div class="timer-dialog-buttons">
+              <button id="dialog-stop-button" class="timer-dialog-button">停止</button>
+              <button id="dialog-reset-button" class="timer-dialog-button">リセット</button>
+            </div>
           </div>
-      </div>
+        </div>
 
-      <!-- 時・分・秒の入力エリア -->
-      <div id="timer-input-group">
+        <!-- 時・分・秒の入力エリア -->
+        <div id="timer-input-group">
           <div class="timer-input-item">
-              <label for="timer-hour">時</label>
-              <select id="timer-hour" name="hour"></select>
-          </div>
-
-          <div class="timer-input-item">
-              <label for="timer-minute">分</label>
-              <select id="timer-minute" name="minute"></select>
+            <label for="timer-hour">時</label>
+            <select id="timer-hour" name="hour"></select>
           </div>
 
           <div class="timer-input-item">
-              <label for="timer-second">秒</label>
-              <select id="timer-second" name="second"></select>
+            <label for="timer-minute">分</label>
+            <select id="timer-minute" name="minute"></select>
           </div>
 
-      </div>
-
-      <!-- ボタンはtsで作る -->
-      <div id="timer-controls"></div>
-      <div class="timer-list-container">
-      <div id="timer-actions">
-          <p id="saved-timer-title">タイマー一覧</p>
-          <div class="timer-action-buttons">
-          <div id="timer-save"></div>
-          <div id="timer-delete"></div>
-          <div id="timer-select"></div>
+          <div class="timer-input-item">
+            <label for="timer-second">秒</label>
+            <select id="timer-second" name="second"></select>
           </div>
+
+        </div>
+
+        <!-- ボタンはtsで作る -->
+        <div id="timer-controls"></div>
+        <div class="timer-list-container">
+          <div id="timer-actions">
+            <p id="saved-timer-title">タイマー一覧</p>
+            <div class="timer-action-buttons">
+              <div id="timer-save"></div>
+              <div id="timer-delete"></div>
+              <div id="timer-select"></div>
+            </div>
+          </div>
+
+          <ul id="saved-timer-list"></ul>
+        </div>
       </div>
+    </main> <!-- <main id="timer-container" class="view-hidden"> -->
 
-      <ul id="saved-timer-list"></ul>
-      </div>
-  </div>
-
-
-</main>
+  </div> <!-- <div id="app"> -->
 
   <!-- モーダル　初期は非表示 -->
   <!-- <div id="alarm-modal" class="modal hidden">
@@ -189,6 +196,7 @@
   <!-- renderRule（エラーメッセージ表示） -->
   <div id="alarm-rule-message" class="hidden" style="color:red"></div>
 
+  <!-- defer は「HTML」を全部読み終わってからスクリプトを実行 -->
   <script type="module" src="/src/main.ts" defer></script>
 </body>
 

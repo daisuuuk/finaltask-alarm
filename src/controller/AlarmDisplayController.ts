@@ -1,10 +1,11 @@
 
 import { type IAddDisplay, type IListDisplay, type IRuleDisplay, type IEditDisplay } from "../display/IDisplay";
 import { type ButtonType, Buttons } from "../domain/ButtonType";
+import { Alarm } from "../domain/Alarm";
 import { Button } from "../common/Button";
 import { getButtonCount } from "../domain/AlarmCount";
-import { ManagerService } from "../service/ManagerService";
-import { ExecutionService } from "../service/ExecutionService";
+import { SetUpEventBinder } from "./binder/SetUpEventBinder";
+import { TimeFactory } from "./factory/TimeSelectFactory";
 import { AlarmTime } from "../domain/AlarmTime";
 import { DuplicateAlarmTimeViolation } from "../violation/DuplicateAlarmTimeViolation";
 import { AlarmLimitExceededViolation } from "../violation/AlarmLimitExceededViolation";
@@ -30,20 +31,35 @@ export type AlarmCount = {
 // 追加時と編集時で「保存ボタン」後の処理を分けるために必要
 type Mode = "add" | "edit";
 
-type ManagerServiceOne = Pick<
-    ManagerService,
-    "saveAlarm" | "getAlarms"
->;
+interface IManagerService {
+    saveAlarm(time: AlarmTime): Result<void, AlarmViolationType>;
+    editAlarm(id: string, time: AlarmTime): Result<void, AlarmViolationType>;
+    getAlarms(): Alarm[];
+    findById(id: string): Alarm | undefined
+    initialLoad(): void;
+    canAddAlarm(): boolean;
+    toggleAlarm(id: string): void
+    deleteMany(ids: string[]): void
+}
 
-type ManagerServiceTwo = Pick<
-    ManagerService,
-    "initialLoad" | "canAddAlarm" | "toggleAlarm" | "editAlarm" | "findById" | "deleteMany"
->;
+interface IExecutionService {
+    stopAlarm(): void;
+}
 
-type ExecutionServiceOne = Pick<
-    ExecutionService,
-    "stopAlarm"
->;
+// type ManagerServiceOne = Pick<
+//     ManagerService,
+//     "saveAlarm" | "getAlarms"
+// >;
+
+// type ManagerServiceTwo = Pick<
+//     ManagerService,
+//     "initialLoad" | "canAddAlarm" | "toggleAlarm" | "editAlarm" | "findById" | "deleteMany"
+// >;
+
+// type ExecutionServiceOne = Pick<
+//     ExecutionService,
+//     "stopAlarm"
+// >;
 
 export class AlarmDisplayController {
     private buttons = new Map<ButtonType, Button>();
@@ -56,9 +72,12 @@ export class AlarmDisplayController {
         private addDisplay: IAddDisplay,
         private listDisplay: IListDisplay,
         private ruleDisplay: IRuleDisplay,
-        private managerService: ManagerServiceOne & ManagerServiceTwo,
-        private executionService: ExecutionServiceOne,
+        // private display: DisplayGroup,
+        private managerService: IManagerService,
+        private executionService: IExecutionService,
         // private setListener(() => this.onTimeReached()),
+        private binder: SetUpEventBinder = new SetUpEventBinder(),
+        private timeFactory: TimeFactory = new TimeFactory(),
     ) { }
 
     /**
@@ -72,7 +91,7 @@ export class AlarmDisplayController {
      * どこに行くか決める役割
      */
     // private onTimerButtonClicked(): void {
-        // this.navigator.switchTo(Screen.TIMER);
+    // this.navigator.switchTo(Screen.TIMER);
     // }
 
     /**
@@ -88,6 +107,42 @@ export class AlarmDisplayController {
 
         // 再描画(ローカルストレージのデータとも照合的な)
         this.updateUi();
+    }
+
+    private setupAlarmListEvent(): void {
+        this.binder.bindList(
+            document,
+            (id) => this.onToggleClicked(id),
+            (id) => this.onRowClicked(id)
+        );
+    }
+
+    private setupModalEvent(): void {
+        const overlay = document.getElementById("alarm-modal-overlay");
+        const saveBtn = document.getElementById("SAVE");
+        const cancelBtn = document.getElementById("CANCEL");
+
+        if (!overlay || !saveBtn || !cancelBtn) return;
+
+        this.binder.bindModal(
+            saveBtn,
+            cancelBtn,
+            overlay,
+            () => this.onButtonClicked("SAVE")
+        );
+    }
+
+    private createAlarmTimeSelect(): void {
+        const hourSelect = document.getElementById("alarm-hour") as HTMLSelectElement;
+        const minuteSelect = document.getElementById("alarm-minute") as HTMLSelectElement;
+
+        if (!hourSelect || !minuteSelect) return;
+
+        const hours = this.timeFactory.createOptions(24);
+        const minutes = this.timeFactory.createOptions(60);
+
+        hours.forEach(o => hourSelect.appendChild(o));
+        minutes.forEach(o => minuteSelect.appendChild(o));
     }
 
     /**
@@ -109,56 +164,6 @@ export class AlarmDisplayController {
 
         this.buttons.set(type, button);
         this.bind(type, button);
-    }
-
-    private setupModalEvent(): void {
-        const overlay = document.getElementById("alarm-modal-overlay");
-        const saveBtn = document.getElementById("SAVE");
-        const cancelBtn = document.getElementById("CANCEL");
-
-        if (!overlay || !saveBtn || !cancelBtn) {
-            return;
-        }
-
-        saveBtn.addEventListener("click", () => {
-            this.onButtonClicked("SAVE");
-            overlay.classList.add("hidden");
-        });
-
-        cancelBtn.addEventListener("click", () => {
-            overlay.classList.add("hidden");
-        });
-    }
-
-    /**
-     * アラーム追加時の「時間・分」のセレクト生成
-     */
-    private createAlarmTimeSelect(): void {
-        const hourSelect = document.getElementById("alarm-hour") as HTMLSelectElement;
-        const minuteSelect = document.getElementById("alarm-minute") as HTMLSelectElement;
-
-        // 0〜23
-        for (let i = 0; i < 24; i++) {
-            // const option = document.createElement("option");
-            // option.value = String(i);
-            // option.text = i.toString().padStart(2, "0");
-            // ２桁統一 "07"と"7"など
-            const val = String(i).padStart(2, "0");
-            const option = document.createElement("option");
-            option.value = val;
-            option.textContent = val;
-
-            hourSelect.appendChild(option);
-        }
-
-        // 0〜59
-        for (let i = 0; i < 60; i++) {
-            const val = String(i).padStart(2, "0"); 
-            const option = document.createElement("option");
-            option.value = val;
-            option.textContent = val;
-            minuteSelect.appendChild(option);
-        }
     }
 
     // ボタン系はswitch⇩⇩
@@ -275,31 +280,6 @@ export class AlarmDisplayController {
         }
     }
 
-    // 下記3つ画面系はメソッド⇩⇩
-    /**
-     * 「閉じる」ボタン押下 「UI操作」
-     */
-    private onClickClose(): void {
-        this.hideModal();
-    }
-
-    /**
-     * 「キャンセル」ボタン押下 「UI操作+少しロジック操作」
-     */
-    private onClickCancel(): void {
-        console.log("CLEAR_SELECTION押された");
-        this.clearSelection();
-    }
-
-    /**
-     * 「停止」ボタン押下 「ロジック操作」
-     */
-    private onClickStop(): void {
-        this.executionService.stopAlarm();
-    }
-
-    // ----------アラーム選択系
-
     // 行クリックはメソッド⇩⇩
     /**
      * 行クリック(すでに選択されていれば解除、されていなければ追加する)
@@ -343,15 +323,6 @@ export class AlarmDisplayController {
         );
 
         this.updateUi();
-    }
-
-    /**
-     * 選択されているかどうかの判定
-     * @param id 
-     * @returns 
-     */
-    private isSelected(id: string): boolean {
-        return this.selectedIds.has(id);
     }
 
     /**
@@ -426,71 +397,6 @@ export class AlarmDisplayController {
         enabled ? button.enable() : button.disable();
     }
 
-    /**
-     * 各ボタン押下で状態更新し、ボタン更新(グレーアウト)をする関数。→ selectedIds と同期させる
-     */
-    private setupAlarmListEvent() {
-        // 「ON/OFF切替」と「行クリック」のイベント処理
-        // イベントデリゲーション(各子要素にハンドラを登録する代わりに、共通の親要素に対してハンドラを一括して登録する仕組み)
-        // const list = document.getElementById("list");
-
-        // 「list」に限定することで、不要なイベントを防ぐ
-        document.addEventListener("click", (element) => {
-            const target = element.target as HTMLElement;
-
-            // トグルボタン(ON/OFF切替)
-            if (target.classList.contains("alarm-toggle-btn")) {
-                // 「stopPropagation()」 = イベントが親に伝わるのを止める役割(イベントバブリングを防ぐ)
-                element.stopPropagation();
-                console.log("トグル");
-
-                // target.closest() は Element | null を返す
-                const item = target.closest(".alarm-item");
-                if (!(item instanceof HTMLElement)) {
-                    return;
-                }
-
-                // dataset は HTMLElement にしか存在しない
-                const id = item.dataset.id;     // ← ここでidを取得！！！
-                if (!id) {
-                    return
-                }
-
-                this.onToggleClicked(id);
-
-                return;
-            }
-
-            // 行クリック
-            // 「closest」 = 自分 or 親をたどって一致する要素を探す
-            const item = target.closest(".alarm-item");
-            if (!(item instanceof HTMLElement)) {
-                return;
-            }
-            if (item) {
-                // item.classList.toggle("selected");
-                const id = item.dataset.id;     // ← ここでidを取得！！！
-                if (!id) {
-                    return
-                }
-
-                this.onRowClicked(id);
-            }
-        });
-    }
-
-    /**
-     * 選択されたアラームのID配列を取得(アラーム編集用)
-     */
-    // private getSelectedIds(): string {
-        // 例：選択状態から取得
-        // return this.service.getAll().
-        // .filter(alarm => this.isSelected(alarm.id))
-        // .map(alarm => alarm.id);
-
-        // = return this.selectedIds;
-    // }
-
     private getSelectedId(): string {
         if (this.selectedIds.size !== 1) {
             throw new Error("編集は1件のみ選択してください");
@@ -503,8 +409,6 @@ export class AlarmDisplayController {
         return [...this.selectedIds];
     }
 
-    // ----------
-
     /**
      * ユーザー操作で選択された「時間・分」を取得する関数
      * @returns 
@@ -516,33 +420,7 @@ export class AlarmDisplayController {
         const hour = Number(hourInput.value);
         const minute = Number(minuteInput.value);
         console.log(`時間：${hour}　分${minute}`);
-        return new AlarmTime(hour, minute);
-    }
-
-    /**
-     * モーダルを非表示にする処理
-     * @returns 
-     */
-    private hideModal(): void {
-        const element = document.getElementById("alarm-modal");
-        if (!element) {
-            return;
-        }
-
-        element.classList.add("hidden");
-    }
-
-    /**
-     * モーダルを表示にする処理
-     * @returns 
-     */
-    private showModal(): void {
-        const element = document.getElementById("alarm-modal");
-        if (!element) {
-            return;
-        }
-
-        element.classList.remove("hidden");
+        return this.timeFactory.create(hour, minute);
     }
 
 }
