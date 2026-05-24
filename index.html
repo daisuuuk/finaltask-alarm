@@ -3,18 +3,26 @@
 
 <head>
   <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="タイマー・アラーム・ストップウォッチを備えた時間管理アプリ。業務の効率的な時間管理をサポートします。" />
-    <title>時間管理アプリ</title>
-    <!-- Google Fonts: Inter -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="タイマー・アラーム・ストップウォッチを備えた時間管理アプリ。業務の効率的な時間管理をサポートします。" />
+  <title>時間管理アプリ</title>
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    #loading {
+      position: fixed;
+      inset: 0;
+      background: white;
+      z-index: 9999;
+    }
+  </style>
 </head>
 
 <body>
 
+  <div id="loading"></div>
   <!-- メイン(固定エリア) -->
   <div id="app">
     <!-- =============================================
@@ -57,11 +65,14 @@
 
     <main id="alarm-container" class="view view-alarm view-hidden" aria-label="アラーム画面">
 
-      <div class="alarm-header">
-        <button class="alarm-nav-btn" type="button" data-target="timer" aria-label="タイマー画面へ移動">
-          タイマー
-        </button>
-      </div>
+      <header class="alarm-header">
+        <nav>
+          <ul class="alarm-nav-list">
+            <li><a href="#" class="alarm-nav-btn" data-target="timer" aria-label="タイマー画面へ移動">タイマー</a></li>
+            <li><a href="#" class="alarm-nav-btn" data-target="alarm" aria-label="タイマー画面へ移動">アラーム</a></li>
+          </ul>
+        </nav>
+      </header>
 
       <div class="alarm-body">
 
@@ -81,7 +92,7 @@
       </div>
     </main>
 
-    <!-- モーダル -->
+    <!-- モーダル(アラーム追加・編集画面) -->
     <div id="alarm-modal-overlay" class="alarm-modal-overlay hidden" role="dialog" aria-modal="true"
       aria-label="アラーム設定">
       <div class="alarm-modal-box">
@@ -116,11 +127,11 @@
                 タイマー
               </a>
             </li>
-            <li>
+            <!-- <li>
               <a class="timer-nav-link" data-target="stopwatch" href="#">
                 ストップウォッチ
               </a>
-            </li>
+            </li> -->
             <li>
               <a class="timer-nav-link" data-target="alarm" href="#">
                 アラーム
