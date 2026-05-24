@@ -1,0 +1,192 @@
+
+/* =============================================================================
+   時間管理アプリ — グローバルスタイル
+   design token → layout → component の順に記述
+   モバイルファースト (375px / 768px / 1200px)
+   ============================================================================= */
+
+/* ─────────────────────────────────────────
+   1. デザイントークン (CSS カスタムプロパティ)
+───────────────────────────────────────── */
+:root {
+  /* カラー */
+  --color-main: #92f0e5;             /* メインカラー */
+  --color-main-dark: #5cd6c8;        /* ホバー・フォーカス時 */
+
+  --color-text-base: #ffffff;        /* 基本文字色 */
+  --color-text-disabled: #cddddb;    /* グレースケール時文字色 */
+  --color-bg-disabled: #acb6b7;      /* グレースケール時背景色 */
+
+  --color-bg-page: #f0fdfb;          /* ページ背景（スクリーンショットの白に近い淡い色） */
+
+  /* ラップリスト グラデーション用 (上=濃、下=淡) */
+  --lap-1-bg: #92f0e5;               /* 最新 (1番上) */
+  --lap-1-text: #ffffff;
+  --lap-2-bg: #a8f3ea;
+  --lap-2-text: #eefdfb;
+  --lap-3-bg: #bcf6ee;
+  --lap-3-text: #92f0e5;
+  --lap-4-bg: #d0f9f3;
+  --lap-4-text: #7accbf;
+  --lap-5-bg: #e4fcf8;               /* 最古 (5番目) */
+  --lap-5-text: #5ab8ab;
+
+  /* フォント */
+  --font-base: 'Inter', system-ui, sans-serif;
+  --font-mono: 'Inter', ui-monospace, 'Courier New', monospace;
+
+  /* スペーシング */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 40px;
+
+  /* ボタン */
+  --btn-radius: 6px;
+  --btn-padding-v: 8px;
+  --btn-padding-h: 18px;
+  --btn-font-size: 0.85rem;
+  --btn-font-size-md: 0.9rem;
+  --btn-transition: background-color 0.2s ease, color 0.2s ease,
+    border-color 0.2s ease, opacity 0.2s ease;
+
+  /* ヘッダー高さ */
+  --header-height: 40px;
+}
+
+/* ─────────────────────────────────────────
+   2. リセット / ベース
+───────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  font-family: var(--font-base);
+  background-color: var(--color-bg-page);
+  /* 要素の文字色は各コンポーネントで個別指定する */
+  min-height: 100svh;
+}
+
+ul,
+ol {
+  list-style: none;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+  font-family: inherit;
+  border: none;
+  background: none;
+}
+
+/* ─────────────────────────────────────────
+   3. レイアウト — #app ラッパー
+───────────────────────────────────────── */
+#app {
+  width: 100%;
+  min-height: 100svh;
+}
+
+/* ─────────────────────────────────────────
+   4. ビュー管理ユーティリティ
+   TypeScript が .view-hidden を付け外して切替
+───────────────────────────────────────── */
+.view {
+  width: 100%;
+  min-height: 100svh;
+}
+
+.view-hidden {
+  display: none !important;
+}
+
+/* ─────────────────────────────────────────
+   5. 初期画面 (Home View)
+───────────────────────────────────────── */
+.view-home {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-bg-page);
+  /* スクリーンショットに合わせ上部にメインカラーのライン */
+  /* border-top: 8px solid var(--color-main); */
+}
+
+/* コンテナ: 中央揃え */
+.home-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-lg);
+  padding: var(--space-xl) var(--space-md);
+  width: 100%;
+  max-width: 400px;
+}
+
+/* タイトル */
+.home-title {
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: var(--color-main);
+  letter-spacing: 0.02em;
+  text-align: center;
+}
+
+/* ナビゲーション */
+.home-nav {
+  width: 100%;
+}
+
+/* メニュー */
+.home-menu {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  align-items: center;
+  width: 100%;
+}
+
+/* メニューボタン */
+.home-menu-btn {
+  display: block;
+  width: 200px;
+  padding: var(--btn-padding-v) var(--btn-padding-h);
+  border: 2px solid var(--color-main);
+  border-radius: var(--btn-radius);
+  background-color: var(--color-main);
+  color: var(--color-text-base);
+  font-size: var(--btn-font-size);
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-align: center;
+  transition: var(--btn-transition);
+}
+
+.home-menu-btn:hover,
+.home-menu-btn:focus-visible {
+  background-color: var(--color-main-dark);
+  border-color: var(--color-main-dark);
+  outline: none;
+}
+
+.home-menu-btn:focus-visible {
+  box-shadow: 0 0 0 3px rgba(146, 240, 229, 0.4);
+}

@@ -1,0 +1,342 @@
+/* ーーーーーーーーーーーーーーー　アラーム　ーーーーーーーーーーーーーーー */
+
+.view-alarm {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    min-height: 100svh;
+}
+
+.alarm-header {
+    width: 100%;
+    height: var(--header-height);
+    background-color: #92F0E5;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 0 var(--space-md);
+    flex-shrink: 0;
+}
+
+.alarm-nav-btn {
+    padding: var(--btn-padding-v) var(--btn-padding-h);
+    border-radius: var(--btn-radius);
+    background-color: transparent;
+    color: var(--color-text-base);
+    font-size: var(--btn-font-size);
+    font-weight: bold;
+    transition: var(--btn-transition);
+}
+
+.alarm-nav-btn:hover,
+.alarm-nav-btn:focus-visible {
+    outline: none;
+}
+
+.alarm-nav-list {
+    display: flex;
+}
+
+.alarm-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-lg);
+    padding: var(--space-md);
+}
+
+.alarm-initial-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-md);
+}
+
+.alarm-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--color-main);
+}
+
+.alarm-add-btn {
+    padding: var(--btn-padding-v) var(--btn-padding-h);
+    border: 2px solid var(--color-main);
+    border-radius: var(--btn-radius);
+    background-color: var(--color-main);
+    color: var(--color-text-base);
+    font-size: var(--btn-font-size-md);
+    font-weight: bold;
+    transition: var(--btn-transition);
+}
+
+.alarm-add-btn.disabled {
+    background-color: var(--color-bg-disabled);
+    border-color: var(--color-bg-disabled);
+    color: var(--color-text-disabled);
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.alarm-add-btn:hover,
+.alarm-add-btn:focus-visible {
+    background-color: var(--color-main-dark);
+    border-color: var(--color-main-dark);
+    outline: none;
+}
+
+/* ─── 一覧エリア ─── */
+.alarm-list-section {
+    width: 100%;
+    max-width: 400px;
+}
+
+.alarm-list-section.hidden {
+    display: none;
+}
+
+.alarm-list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: var(--space-sm);
+    margin-bottom: var(--space-sm);
+}
+
+.alarm-list-header-label {
+    font-weight: 600;
+    color: var(--color-main);
+}
+
+.alarm-sub-button-area {
+    display: flex;
+    gap: 4px;
+    justify-content: flex-end;
+    min-width: 180px;
+}
+
+.alarm-btn {
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 4px 0;
+    height: 28px;
+    border: 1.5px solid var(--color-main);
+    border-radius: var(--btn-radius);
+    background-color: var(--color-main);
+    color: var(--color-text-base);
+    font-size: 0.7rem;
+    font-weight: bold;
+    line-height: 1;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    transition: var(--btn-transition);
+}
+
+.alarm-btn:hover {
+    background-color: var(--color-main-dark);
+    border-color: var(--color-main-dark);
+}
+
+.alarm-btn.disabled,
+.alarm-btn:disabled {
+    background-color: var(--color-bg-disabled);
+    border-color: var(--color-bg-disabled);
+    color: var(--color-text-disabled);
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* ─── アラームリスト ─── */
+.alarm-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+}
+
+.alarm-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-sm) var(--space-md);
+    background-color: var(--color-main);
+    border-radius: var(--btn-radius);
+    cursor: pointer;
+    transition: var(--btn-transition);
+}
+
+.alarm-item.selected {
+    background-color: var(--color-main-dark);
+}
+
+.alarm-time {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: var(--color-text-base);
+}
+
+/* ─── トグルボタン ─── */
+/* checkboxのデフォルトを消す */
+.alarm-toggle-btn {
+    width: 50px;
+    height: 26px;
+    background: var(--color-bg-disabled);
+    border-radius: 13px;
+    position: relative;
+    border: none;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.alarm-toggle-btn::before {
+    content: "";
+    width: 22px;
+    height: 22px;
+    background: white;
+    border-radius: 50%;
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    transition: transform 0.3s;
+}
+
+.alarm-toggle-btn.active {
+    background-color: #1a73e8;
+}
+
+.alarm-toggle-btn.active::before {
+    transform: translateX(24px);
+}
+
+/* ─── モーダル(アラーム追加・編集画面) ─── */
+.alarm-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.alarm-modal-overlay.hidden {
+    display: none;
+}
+
+.alarm-modal-box {
+    background: white;
+    padding: var(--space-lg);
+    border-radius: 10px;
+    width: 280px;
+    text-align: center;
+}
+
+.alarm-time-row {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: var(--space-lg);
+}
+
+.alarm-time-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-xs);
+}
+
+.alarm-time-block label {
+    font-size: var(--btn-font-size);
+    color: var(--color-main);
+    font-weight: 600;
+}
+
+.alarm-time-block select {
+    width: 80px;
+    padding: var(--space-xs);
+    border: 2px solid var(--color-main);
+    border-radius: var(--btn-radius);
+}
+
+.alarm-button-row {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-xl);
+}
+
+.alarm-modal-btn {
+    padding: var(--btn-padding-v) var(--btn-padding-h);
+    border-radius: var(--btn-radius);
+    font-size: var(--btn-font-size);
+    font-weight: 500;
+    border: 2px solid var(--color-main);
+    transition: var(--btn-transition);
+}
+
+.alarm-modal-btn--save {
+    background-color: var(--color-main);
+    color: var(--color-text-base);
+}
+
+.alarm-modal-btn--save:hover {
+    background-color: var(--color-main-dark);
+    border-color: var(--color-main-dark);
+}
+
+.alarm-modal-btn--cancel {
+    background-color: transparent;
+    color: var(--color-main);
+}
+
+.alarm-modal-btn--cancel:hover {
+    background-color: var(--color-main);
+    color: var(--color-text-base);
+}
+
+/* ─── モーダル(時間到達時) ─── */
+/* CSS に追加してください */
+
+.alarm-alert-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.alarm-alert-modal {
+    background: white;
+    border: black solid 2px;
+    border-radius: 10px;
+    padding: 60px 80px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 32px;
+    min-width: 320px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+}
+
+.alarm-alert-modal-title {
+    color: #5ee0c5;
+    font-size: 1.8rem;
+    font-weight: bold;
+    margin: 0;
+}
+
+.alarm-alert-modal-stop-btn {
+    background: #5ee0c5;
+    color: white;
+    border: none;
+    border-radius: 15px;
+    padding: 14px 48px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.alarm-alert-modal-stop-btn:hover {
+    background: #3ecdb0;
+}
