@@ -1,5 +1,5 @@
 
-import { type IAddDisplay, type IListDisplay, type IRuleDisplay, type IEditDisplay } from "../display/IDisplay";
+import { DisplayGroup } from "../display/DisplayGroup";
 import { type ButtonType, Buttons } from "../domain/ButtonType";
 import { Alarm } from "../domain/Alarm";
 import { Button } from "../common/Button";
@@ -9,6 +9,8 @@ import { TimeFactory } from "./factory/TimeSelectFactory";
 import { AlarmTime } from "../domain/AlarmTime";
 import { DuplicateAlarmTimeViolation } from "../violation/DuplicateAlarmTimeViolation";
 import { AlarmLimitExceededViolation } from "../violation/AlarmLimitExceededViolation";
+import { type TimeReachedListener } from "../service/ExecutionService";
+import { type AlarmRemovedListener } from "../service/ManagerService";
 
 // type Result =
 //     | { ok: true; value: undefined }
@@ -21,7 +23,7 @@ export type Result<T, E> =
 
 export type AlarmViolationType =
     | AlarmLimitExceededViolation
-    | DuplicateAlarmTimeViolation;
+    | DuplicateAlarmTimeViolation
 
 export type AlarmCount = {
     alarmsCount: number;
@@ -31,35 +33,25 @@ export type AlarmCount = {
 // 追加時と編集時で「保存ボタン」後の処理を分けるために必要
 type Mode = "add" | "edit";
 
-interface IManagerService {
+export interface IManagerService {
     saveAlarm(time: AlarmTime): Result<void, AlarmViolationType>;
     editAlarm(id: string, time: AlarmTime): Result<void, AlarmViolationType>;
     getAlarms(): Alarm[];
-    findById(id: string): Alarm | undefined
+    findById(id: string): Alarm | undefined;
     initialLoad(): void;
     canAddAlarm(): boolean;
-    toggleAlarm(id: string): void
-    deleteMany(ids: string[]): void
+    toggleAlarm(id: string): void;
+    deleteMany(ids: string[]): void;
+    toggleAlarm(id: string): void;
+    onAlarmRemoved(listener: AlarmRemovedListener): void;
 }
 
-interface IExecutionService {
+export interface IExecutionService {
     stopAlarm(): void;
+    startAlarmMonitoring(alarm: Alarm): void;
+    stopAlarmMonitoring(id: string): void;
+    timeReached(listener: TimeReachedListener): void;
 }
-
-// type ManagerServiceOne = Pick<
-//     ManagerService,
-//     "saveAlarm" | "getAlarms"
-// >;
-
-// type ManagerServiceTwo = Pick<
-//     ManagerService,
-//     "initialLoad" | "canAddAlarm" | "toggleAlarm" | "editAlarm" | "findById" | "deleteMany"
-// >;
-
-// type ExecutionServiceOne = Pick<
-//     ExecutionService,
-//     "stopAlarm"
-// >;
 
 export class AlarmDisplayController {
     private buttons = new Map<ButtonType, Button>();
@@ -68,11 +60,7 @@ export class AlarmDisplayController {
     private editingId: string | null = null;
 
     constructor(
-        private editDisplay: IEditDisplay,
-        private addDisplay: IAddDisplay,
-        private listDisplay: IListDisplay,
-        private ruleDisplay: IRuleDisplay,
-        // private display: DisplayGroup,
+        private display: DisplayGroup,
         private managerService: IManagerService,
         private executionService: IExecutionService,
         // private setListener(() => this.onTimeReached()),
@@ -81,24 +69,11 @@ export class AlarmDisplayController {
     ) { }
 
     /**
-     * コールバック用
-     */
-    private onTimeReached() {
-        // this.display.renderAlertDialog(alarm: Alarm): void
-    }
-
-    /**
-     * どこに行くか決める役割
-     */
-    // private onTimerButtonClicked(): void {
-    // this.navigator.switchTo(Screen.TIMER);
-    // }
-
-    /**
      * 起動時処理 = 通知はUIがするので、「ボタン押下後処理も起動」もUIで行うため
      */
     // そもそもinit()をクラス化し、main.tsで呼ぶ設計にする？？？？？？
     public init(): void {
+        this.setupCallBack();
         this.setupAlarmListEvent();
         this.setupModalEvent();
         this.createAlarmTimeSelect();
@@ -109,10 +84,79 @@ export class AlarmDisplayController {
         this.updateUi();
     }
 
+    // コールバックの流れザックリ ⑧listenerが呼ばれ時間到達処理
+    private setupCallBack(): void {
+        // 鳴動時のコールバック
+        // Alarmの複数プロパティを使う為、Alarm
+        this.executionService.timeReached((alarm) => {
+            this.onTimeReached(alarm);
+        });
+
+        // アラーム削除時のコールバック
+        // IDだけ使う為、id
+        // 「(id) => stopAlarmMonitoring(id)」という関数を持って,
+        // ❶managerService に onAlarmRemoved を渡す。
+        this.managerService.onAlarmRemoved((id) => {
+            this.executionService.stopAlarmMonitoring(id);
+        });
+    }
+
+    /**
+     * コールバック用
+     */
+    // コールバックの流れザックリ ⑨実際の処理 モーダル表示
+    private onTimeReached(alarm: Alarm): void {
+        const time = alarm.getTime();
+        this.display.modal.renderOpenAlertModal({
+            title: `アラーム (${time.hour}:${String(time.minute).padStart(2, "0")})`,
+            onStop: () => this.executionService.stopAlarm(),
+        });
+    }
+
+    // コールバックの流れザックリ ②アラーム監視開始
+    private onToggleChanged(alarm: Alarm, isOn: boolean): void {
+        if (isOn) {
+            this.executionService.startAlarmMonitoring(alarm);
+        } else {
+            this.executionService.stopAlarmMonitoring(alarm.getId());
+        }
+    }
+
+    // コールバックの流れザックリ ①トグルON
+    private onToggleClicked(id: string, isOn: boolean): void {
+        // console.log("before",
+        //     this.managerService.getAlarms().map(alarm => ({
+        //         id: alarm.getId(),
+        //         active: alarm.isActive()
+        //     }))
+        // );
+        const alarm = this.managerService.findById(id);
+        if (!alarm) { 
+            return;
+        }
+
+        this.managerService.toggleAlarm(id);
+
+        this.onToggleChanged(alarm, isOn);
+
+        // console.log("after",
+        //     this.managerService.getAlarms().map(alarm => ({
+        //         id: alarm.getId(),
+        //         active: alarm.isActive()
+        //     }))
+        // );
+
+        this.updateUi();
+    }
+
     private setupAlarmListEvent(): void {
+        console.log("setupAlarmListEvent called!");
         this.binder.bindList(
             document,
-            (id) => this.onToggleClicked(id),
+            // (id) => this.onToggleClicked(id),
+            (id, isOn) => this.onToggleClicked(id, isOn),
+            // js切替ではなくcss切替？
+            // (id, isOn) => this.onToggleChangedById(id, isOn),
             (id) => this.onRowClicked(id)
         );
     }
@@ -122,21 +166,30 @@ export class AlarmDisplayController {
         const saveBtn = document.getElementById("SAVE");
         const cancelBtn = document.getElementById("CANCEL");
 
-        if (!overlay || !saveBtn || !cancelBtn) return;
+        if (!overlay || !saveBtn || !cancelBtn) {
+            return;
+        }
 
         this.binder.bindModal(
+            overlay,
             saveBtn,
             cancelBtn,
-            overlay,
-            () => this.onButtonClicked("SAVE")
+            () => this.onButtonClicked("SAVE"),
+            () => this.hideModal(),
         );
+    }
+
+    public hideModal(): void {
+        this.display.add.renderClose();
     }
 
     private createAlarmTimeSelect(): void {
         const hourSelect = document.getElementById("alarm-hour") as HTMLSelectElement;
         const minuteSelect = document.getElementById("alarm-minute") as HTMLSelectElement;
 
-        if (!hourSelect || !minuteSelect) return;
+        if (!hourSelect || !minuteSelect) {
+            return;
+        }
 
         const hours = this.timeFactory.createOptions(24);
         const minutes = this.timeFactory.createOptions(60);
@@ -157,13 +210,79 @@ export class AlarmDisplayController {
         button.setOnClick(() => this.onButtonClicked(type));
     }
 
-    public registerButton(type: ButtonType, button: Button) {
+    public registerButton(type: ButtonType, button: Button): void {
         if (this.buttons.has(type)) {
             return;
         }
 
         this.buttons.set(type, button);
         this.bind(type, button);
+    }
+
+    public openAddModal(): void {
+        console.log("ADD押された");
+        // UI側でグレーアウトで押下できないようにはしている(制御)ので「boolean」で判別。問題なければrenderで表示
+        const canAdd = this.managerService.canAddAlarm();
+
+        if (!canAdd) {
+            // そもそも押下できないので通知する系は無しで結果を返すだけにする「return」など？
+            return;
+        }
+
+        this.mode = "add";
+        this.editingId = null;
+
+        this.display.add.renderAdd();
+    }
+
+    private handleSaveButton(time: AlarmTime): void {
+        if (this.mode === "add") {
+            const success = this.handleAddCase(time);
+            if (!success) { 
+                return;
+            }
+        }
+
+        if (this.mode === "edit" && this.editingId) {
+            const success = this.handleEditCase(time);
+            if (!success) { 
+                return;
+            }
+        }
+
+        this.updateUi();
+    }
+
+    private handleAddCase(time: AlarmTime): boolean {
+        // ②取得したものを保存する処理へ
+        const result = this.managerService.saveAlarm(time);
+        // Serviceから「保存できなったという結果」が返ってきた場合の処理
+        if (result.ok === false) {
+            if (result.error instanceof DuplicateAlarmTimeViolation) {
+                this.display.rule.renderRule(result.error.message);
+                alert("同時刻は設定できません！！！");
+            }
+            return false;
+        }
+
+        return true;
+    }
+
+    private handleEditCase(time: AlarmTime): boolean {
+        if (!this.editingId) {
+            return false;
+        }
+        // idと時間・分を取得し、メソッドを呼ぶ
+        const result = this.managerService.editAlarm(this.editingId, time);
+
+        if (result.ok === false) {
+            if (result.error instanceof DuplicateAlarmTimeViolation) {
+                this.display.rule.renderRule(result.error.message);
+            }
+            return false;
+        }
+        // AlarmLimitExceededViolation はUIで表示しない⇩
+        return true;
     }
 
     // ボタン系はswitch⇩⇩
@@ -176,27 +295,7 @@ export class AlarmDisplayController {
 
         switch (type) {
             case Buttons.ADD:
-                console.log("ADD押された");
-                // UI側でグレーアウトで押下できないようにはしている(制御)ので「boolean」で判別。問題なければrenderで表示
-                const canAdd = this.managerService.canAddAlarm();
-                // ここは念の為
-                if (canAdd === false) {
-                    // そもそも押下できないので通知する系は無しで結果を返すだけにする「return」など？
-                    alert("これ以上追加できません！！！");
-                    return;
-                }
-
-                this.mode = "add";
-                this.editingId = null;
-
-                // コールバック　理由：①Display（表示）とUI（制御）が密結合になる、②Display が UIを直接呼ぶという依存関係が逆を防げる
-                // ① UIがrenderAddを呼ぶ
-                this.addDisplay.renderAdd();
-                // this.addDisplay.renderAdd(() => {
-                //     // ② 引数に「関数」を渡す
-                //     // ⑦ onButtonClicked(SAVE)が呼ばれる
-                //     this.onButtonClicked(Buttons.SAVE);
-                // });
+                this.openAddModal();
                 break;
 
             case Buttons.EDIT:
@@ -211,66 +310,29 @@ export class AlarmDisplayController {
                 this.mode = "edit";
                 this.editingId = id;
 
-                // this.editDisplay.renderEdit(alarm, () => {
-                //     this.onButtonClicked(Buttons.SAVE);
-                // });
-                this.editDisplay.renderEdit(alarm);
+                this.display.edit.renderEdit(alarm);
 
                 break;
 
             case Buttons.SAVE:
                 console.log("SAVE押された");
-                // const alarm = new Alarm(this.getSelectedTime());
+
                 // ①「時間・分」の入力を取得
                 const time = this.getSelectedTime();
-                if (this.mode === "add") {
-                    // ②取得したものを保存する処理へ
-                    const result = this.managerService.saveAlarm(time);
+                this.handleSaveButton(time);
 
-                    // Serviceから「保存できなったという結果」が返ってきた場合の処理
-                    if (result.ok === false) {
-                        if (result.error instanceof DuplicateAlarmTimeViolation) {
-                            // this.display.renderRule(result.error.message);
-                            this.ruleDisplay.renderRule(result.error.message);
-                            alert("同時刻は設定できません！！！");
-                        }
-
-                        // AlarmLimitExceededViolation はUIで表示しない⇩
-                        return;
-                    }
-                } else if (this.mode === "edit" && this.editingId) {
-                    // idと時間・分を取得し、メソッドを呼ぶ
-                    const result = this.managerService.editAlarm(this.editingId, time);
-
-                    if (result.ok === false) {
-                        if (result.error instanceof DuplicateAlarmTimeViolation) {
-                            this.ruleDisplay.renderRule(result.error.message);
-                        }
-                    }
-                }
-
-                // this.ruleDisplay.clearRule();
-                // ③成功時の処理 = アラーム一覧に表示
-                this.updateUi();
                 console.log("リストで表示");
 
                 break;
 
             case Buttons.DELETE:
                 const ids = this.getSelectedIds();
-                this.managerService.deleteMany(ids);
+                const result = this.managerService.deleteMany(ids);
 
                 this.selectedIds.clear();
 
                 this.updateUi();
                 break;
-            // case Buttons.TOGGLE:
-            //     if (ids.length !== 1) {
-            //         return;
-            //     }
-
-            //     this.service.toggle(ids[0]);
-            //     break;
 
             // 選択解除
             case Buttons.CLEAR:
@@ -286,43 +348,25 @@ export class AlarmDisplayController {
      * @param id 
      */
     private onRowClicked(id: string): void {
-        if (this.selectedIds.has(id)) {
+        console.log("=== onRowClicked ===", id);
+
+        if (this.isSelected(id)) {
             this.selectedIds.delete(id);
         } else {
             this.selectedIds.add(id);
         }
 
-        console.log(`${this.selectedIds}`);
+        // console.log(`${this.selectedIds}`);
 
         this.updateUi();
 
-        console.log("alarmsCount", this.managerService.getAlarms().length);
-        console.log("selectedCount", this.selectedIds.size);
-        console.log(this.buttons);
+        // console.log("alarmsCount", this.managerService.getAlarms().length);
+        // console.log("selectedCount", this.selectedIds.size);
+        // console.log(this.buttons);
     }
 
-    /**
-     * 
-     * @param id 
-     */
-    private onToggleClicked(id: string): void {
-        console.log("before",
-            this.managerService.getAlarms().map(alarm => ({
-                id: alarm.getId(),
-                active: alarm.isActive()
-            }))
-        );
-
-        this.managerService.toggleAlarm(id);
-
-        console.log("after",
-            this.managerService.getAlarms().map(alarm => ({
-                id: alarm.getId(),
-                active: alarm.isActive()
-            }))
-        );
-
-        this.updateUi();
+    public isSelected(id: string): boolean {
+        return this.selectedIds.has(id);
     }
 
     /**
@@ -332,13 +376,39 @@ export class AlarmDisplayController {
         this.selectedIds.clear();
     }
 
+    private getSelectedId(): string {
+        if (this.selectedIds.size !== 1) {
+            throw new Error("編集は1件のみ選択してください");
+        }
+
+        return [...this.selectedIds][0];
+    }
+
+    private getSelectedIds(): string[] {
+        return [...this.selectedIds];
+    }
+
+    /**
+     * ユーザー操作で選択された「時間・分」を取得する関数
+     * @returns 
+     */
+    private getSelectedTime(): AlarmTime {
+        const hourInput = document.getElementById("alarm-hour") as HTMLInputElement;
+        const minuteInput = document.getElementById("alarm-minute") as HTMLInputElement;
+
+        const hour = Number(hourInput.value);
+        const minute = Number(minuteInput.value);
+        console.log(`時間：${hour}　分${minute}`);
+        return this.timeFactory.createAlarmTimeSelect(hour, minute);
+    }
+
     /**
      * UIを更新する関数(=再描画)
      */
     private updateUi(): void {
         const alarms = this.managerService.getAlarms();
 
-        this.listDisplay.renderList(alarms, this.selectedIds);
+        this.display.list.renderList(alarms, this.selectedIds);
         this.updateButtonState();
     }
 
@@ -378,7 +448,7 @@ export class AlarmDisplayController {
 
         // 「アラームを追加+」を押下できる
         this.toggleButtonState(this.buttons.get("ADD"), state.canAdd);
-        console.log("アラームを追加できます")
+        // console.log("アラームを追加できます")
         // this.toggle(this.buttons.get("SAVE"), state.canSave);
         // 「編集ボタン」を押下できる
         this.toggleButtonState(this.buttons.get("EDIT"), state.canEdit);
@@ -388,39 +458,12 @@ export class AlarmDisplayController {
         this.toggleButtonState(this.buttons.get("CLEAR"), state.canClear);
     }
 
-    // DI
     private toggleButtonState(button: Button | undefined, enabled: boolean): void {
         if (!button) {
             return;
         }
 
         enabled ? button.enable() : button.disable();
-    }
-
-    private getSelectedId(): string {
-        if (this.selectedIds.size !== 1) {
-            throw new Error("編集は1件のみ選択してください");
-        }
-
-        return [...this.selectedIds][0];
-    }
-
-    private getSelectedIds(): string[] {
-        return [...this.selectedIds];
-    }
-
-    /**
-     * ユーザー操作で選択された「時間・分」を取得する関数
-     * @returns 
-     */
-    private getSelectedTime(): AlarmTime {
-        const hourInput = document.getElementById("alarm-hour") as HTMLInputElement;
-        const minuteInput = document.getElementById("alarm-minute") as HTMLInputElement;
-
-        const hour = Number(hourInput.value);
-        const minute = Number(minuteInput.value);
-        console.log(`時間：${hour}　分${minute}`);
-        return this.timeFactory.create(hour, minute);
     }
 
 }
