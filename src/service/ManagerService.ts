@@ -2,23 +2,26 @@
 import { Alarm } from "../domain/Alarm";
 import { AlarmTime } from "../domain/AlarmTime";
 import { AlarmList } from "../domain/AlarmList";
-import { AlarmDataManager } from "../infra/AlarmDataManager";
-import { type Result, type AlarmViolationType } from "../controller/AlarmDisplayController";
+import { type IAlarmDataManager } from "../infra/AlarmDataManager";
+import { type Result, type AlarmViolationType, type IManagerService } from "../controller/AlarmDisplayController";
 
-export class ManagerService {
+export type AlarmRemovedListener = (id: string) => void;
+
+export class ManagerService implements IManagerService {
     constructor(
         private alarmList: AlarmList,
-        private dataManager: AlarmDataManager,
+        // private dataManager: AlarmDataManager,
+        private dataManager: IAlarmDataManager,
     ) { }
 
     /**
-     * コールバックの内容
+     * 
+     * @param listener 
+     * ❷「(id) => stopAlarmMonitoring(id)」を持って、onRemovedに渡す。
      */
-    // private onTimeReached: (alarm: Alarm) => void {
-    //     alarm.toggleOnOff();                           // 状態変更
-    //     this.dataManager.saveAll(this.getAllAlarms()); // 永続化
-    //     this.onTimeReached(alarm);                     // ← ここで鳴る + UI通知
-    // }
+    public onAlarmRemoved(listener: AlarmRemovedListener): void {
+        this.alarmList.onRemoved(listener);
+    }
 
     /**
      * ON/OFF切り替えメソッドを呼び出すメソッド
@@ -29,19 +32,11 @@ export class ManagerService {
         // if (id.length !== 1) {
         //     return;
         // }
-        if (!alarm) { 
+        if (!alarm) {
             return;
         }
 
         alarm.toggleOnOff();
-        // this.dataManager.saveAll(this.alarms);
-
-        // -----
-
-        // const alarm = this.alarms.find(a => a.getId() === id);
-        // if (!alarm) return;
-
-        // alarm.toggle(); // ← これ必要
     }
 
     /**
@@ -57,16 +52,9 @@ export class ManagerService {
     /**
      * 過去時刻の未処理アラーム判定メソッド と 起動時に通知
      */
-    public checkMissedAlarms(): void {
+    // public checkMissedAlarms(): void {
         // this.dataManager.loadAll(): Alarm[]
         // 通知メソッド()
-    }
-
-    /**
-     * 全件削除
-     */
-    // public resetAlarm(): void {
-    // resetAll(): Alarm[]
     // }
 
     /**
@@ -74,9 +62,10 @@ export class ManagerService {
      */
     public deleteMany(ids: string[]): void {
         if (ids.length === 0) {
+            // return { ok: false, error: new AlarmNotFoundViolation() };
             return;
         }
-        // そのidのループ
+
         for (const id of ids) {
             this.delete(id);
         }
@@ -86,7 +75,6 @@ export class ManagerService {
 
     public delete(id: string): void {
         this.alarmList.remove(id);
-        // this.scheduler.cancel(id);
     }
 
     /**
@@ -136,10 +124,6 @@ export class ManagerService {
 
         return { ok: true, value: undefined };
     }
-
-    // public getAll(): Alarm[] {
-    //     return this.alarmList;
-    // }
 
     public getAlarms(): Alarm[] {
         return this.alarmList.getAll();
