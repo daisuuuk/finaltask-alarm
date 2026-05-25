@@ -2,7 +2,7 @@
 export class SetUpEventBinder {
     public bindList(
         root: Document,
-        onToggle: (id: string) => void,
+        onToggle: (id: string, isOn: boolean) => void,
         onSelect: (id: string) => void
     ): void {
         root.addEventListener("click", (element) => {
@@ -11,27 +11,35 @@ export class SetUpEventBinder {
             // トグル
             if (target.classList.contains("alarm-toggle-btn")) {
                 element.stopPropagation();
+                element.preventDefault();
 
                 const item = target.closest(".alarm-item");
-                if (!(item instanceof HTMLElement) || !item.dataset.id) return;
+                if (!(item instanceof HTMLElement) || !item.dataset.id) {
+                    return;
+                }
 
-                onToggle(item.dataset.id);
+                const isOn = !target.classList.contains("active");
+                // binderは id（文字列）,（true/false）という情報しか知らない
+                onToggle(item.dataset.id, isOn);
                 return;
             }
 
             // 行クリック
             const item = target.closest(".alarm-item");
-            if (!(item instanceof HTMLElement) || !item.dataset.id) return;
+            if (!(item instanceof HTMLElement) || !item.dataset.id) {
+                return;
+            }
 
             onSelect(item.dataset.id);
         });
     }
 
     public bindModal(
+        overlay: HTMLElement,
         saveBtn: HTMLElement,
         cancelBtn: HTMLElement,
-        overlay: HTMLElement,
-        onSave: () => void
+        onSave: () => void,
+        onCancel: () => void,
     ): void {
         saveBtn.addEventListener("click", () => {
             onSave();
@@ -39,7 +47,7 @@ export class SetUpEventBinder {
         });
 
         cancelBtn.addEventListener("click", () => {
-            overlay.classList.add("hidden");
+            onCancel();
         });
     }
 }
