@@ -3,17 +3,18 @@ import { Alarm } from "../domain/Alarm";
 
 export interface IDisplay {
     renderInitial(): void;
-    renderAlertDialog(alarm: Alarm): void
     renderMissedAlarm(): void;
 }
 
 export interface IEditDisplay {
-    renderEdit(alarm: Alarm): void
+    renderEdit(alarm: Alarm): void;
+    renderClose(): void;
 }
 
 export interface IAddDisplay {
     // renderAdd(onSave: () => void): void
-    renderAdd(): void
+    renderAdd(): void;
+    renderClose(): void;
 }
 
 export interface IListDisplay {
@@ -23,4 +24,13 @@ export interface IListDisplay {
 export interface IRuleDisplay {
     renderRule(message: string): void;
     // clearRule(): void;
+}
+
+export interface IModalDisplay {
+    renderOpenAlertModal(props: {
+        title: string;
+        onStop: () => void;
+    }): void;
+
+    renderCloseAlertModal(): void;
 }

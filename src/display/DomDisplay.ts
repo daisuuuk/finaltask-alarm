@@ -1,7 +1,8 @@
 
 import { Alarm } from "../domain/Alarm";
-import { type IAddDisplay, type IDisplay, type IListDisplay, type IRuleDisplay, type IEditDisplay } from "./IDisplay";
+import { type IAddDisplay, type IDisplay, type IListDisplay, type IRuleDisplay, type IEditDisplay, type IModalDisplay } from "./IDisplay";
 import { TimeFormatter } from "../common/TimeFormatter";
+import { ModalService } from "../domain/ModalService";
 
 export class DomDisplay implements IDisplay {
     private formatter: TimeFormatter;
@@ -12,28 +13,12 @@ export class DomDisplay implements IDisplay {
 
     renderInitial(): void { }
     // { this.content.innerHTML = "<p>アラームはまだありません</p>"; }
-
-    renderAlertDialog(alarm: Alarm): void { }
-    // { this.content.innerHTML = `<p>${alarm.time} のアラームです！</p>`; }
     renderMissedAlarm(): void { }
 }
 
-/**
- * AddとEditで共通
- * @returns 
- */
-function showModal(): void {
-    const overlay = document.getElementById("alarm-modal-overlay");
-    console.log(`${overlay}`);
-    if (!overlay) { 
-        return;
-    }
-
-    // 表示
-    overlay.classList.remove("hidden");
-}
-
 export class EditDisplay implements IEditDisplay {
+    constructor(private modal: ModalService) { }
+
     renderEdit(alarm: Alarm): void {
         const hour = document.getElementById("alarm-hour") as HTMLSelectElement;
         const minute = document.getElementById("alarm-minute") as HTMLSelectElement;
@@ -51,11 +36,16 @@ export class EditDisplay implements IEditDisplay {
         );
         console.log(minute.value);
 
-        showModal();
+        this.modal.showModalView();
+    }
+
+    renderClose(): void {
+        this.modal.hideModalView();
     }
 }
 
 export class AddDisplay implements IAddDisplay {
+    constructor(private modal: ModalService) { }
     /**
      * 「アラーム追加画面」という表示のみの役割
      * @param alarm 
@@ -74,7 +64,11 @@ export class AddDisplay implements IAddDisplay {
         hour.selectedIndex = 0;
         minute.selectedIndex = 0;
 
-        showModal();
+        this.modal.showModalView();
+    }
+
+    renderClose(): void {
+        this.modal.hideModalView();
     }
 }
 
@@ -123,6 +117,7 @@ export class ListDisplay implements IListDisplay {
             const id = alarm.getId();
 
             const selected = selectedIds.has(id) ? "selected" : "";
+            // const check = alarm.isActive() ? "checked" : "";
             const active = alarm.isActive() ? "active" : "";
             // ❶アラームの時間・分を取得する
             const time = alarm.getTime();
@@ -131,13 +126,57 @@ export class ListDisplay implements IListDisplay {
             // ❸それらをアラーム１行に表示する書き方
             // <li class="alarm-item ${alarm.isSelected() ? "selected" : ""}" data-id="${alarm.getId()}">
             return `
-            <li class="alarm-item ${selected}" data-id="${alarm.getId()}">
-                <span>${text}</span>
-                <button class="alarm-toggle-btn ${active}"></button>
+            <li class="alarm-item ${selected}" data-id="${alarm.getId()}"> 
+                <span>${text}</span> 
+                <button class="alarm-toggle-btn ${active}"></button> 
             </li>
         `;
         }).join("");
 
         list.innerHTML = html;
+    }
+}
+
+export class ModalDisplay implements IModalDisplay {
+    // DOMは一度作ると「どこにも参照がない」と削除できないため定義する
+    private modalElement: HTMLElement | null = null;
+
+    renderOpenAlertModal(props: { title: string; onStop: () => void }): void {
+        // 既存があれば閉じる
+        this.renderCloseAlertModal();
+
+        // オーバーレイ（背景の暗い部分）
+        const overlay = document.createElement("div");
+        overlay.className = "alarm-alert-modal-overlay";
+
+        const modal = document.createElement("div");
+        modal.className = "alarm-alert-modal";
+
+        const title = document.createElement("p");
+        title.className = "alarm-alert-modal-title";
+        title.textContent = props.title;
+
+        const button = document.createElement("button");
+        button.className = "alarm-alert-modal-stop-btn";
+        button.textContent = "停止";
+        button.onclick = () => {
+            props.onStop();
+            this.renderCloseAlertModal();
+        };
+
+        modal.appendChild(title);
+        modal.appendChild(button);
+        overlay.appendChild(modal);
+        document.body.appendChild(overlay);
+
+        this.modalElement = overlay; // overlayごと保存(親ごとまとめて持つ)
+    }
+
+    renderCloseAlertModal(): void {
+        // DOM削除
+        if (this.modalElement) {
+            this.modalElement.remove();
+            this.modalElement = null;
+        }
     }
 }
