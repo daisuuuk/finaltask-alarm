@@ -1,10 +1,10 @@
 
 import { Alarm } from "./Alarm";
 import { AlarmTime } from "./AlarmTime";
-import { AlarmRangEvent } from "./AlarmRangEvent";
 import { DuplicateAlarmTimeViolation } from "../violation/DuplicateAlarmTimeViolation";
 import { AlarmLimitExceededViolation } from "../violation/AlarmLimitExceededViolation";
 import { type Result, type AlarmViolationType } from "../controller/AlarmDisplayController";
+import { type AlarmRemovedListener } from "../service/ManagerService";
 
 /**
  * アラームの集合管理(メモリ上管理)
@@ -14,7 +14,7 @@ export class AlarmList {
     private alarms: Alarm[] = [];
     private readonly MAX_SET_LIMIT = 5;
     // 削除された時に呼ばれる関数のリスト
-    private listeners: ((id: string) => void)[] = [];
+    private listeners: (AlarmRemovedListener)[] = [];
 
     public stop(id: string): void {
         // const alarm = this.getFindAlarm(id);
@@ -91,26 +91,39 @@ export class AlarmList {
         return { ok: true, value: undefined };
     }
 
+    // ①`` 削除が呼ばれる
     public remove(id: string): void {
         // アラームデータ削除
         // 絞り込むという認識 → 今回、指定したID以外だけ残す = 削除したいIDじゃないものだけ残す = 選択されたidを削除したい
         this.alarms = this.alarms.filter(alarm => alarm.getId() !== id);
+
         // idが削除された事を通知する
         this.notifyRemoved(id);
     }
 
-    // 削除されたらこの処理をすように登録　⇩⇩
-    public onRemoved(listener: (id: string) => void): void {
+    // 削除されたらこの処理をするように登録　⇩⇩
+    // ❸「(id) => stopAlarmMonitoring(id)」を箱に保存する。
+    public onRemoved(listener: AlarmRemovedListener): void {
         this.listeners.push(listener);
     }
-    // 「main.ts」alarmList.onRemoved(id => scheduler.cancel(id));
-    // 削除されたら、スケジューラも止める
-    // alarmList.onRemoved(() => {this.updateUi();}); イベント駆動UI
-    
-    // idが削除された事を通知する
+
+    // ②`` idが削除された事を通知する
+    // 箱にある関数をループで全部実行
+    // ③`` (id) => stopAlarmMonitoring(id) が動く
     private notifyRemoved(id: string): void {
-        this.listeners.forEach(l => l(id));
+        this.listeners.forEach(lis => lis(id));
     }
+
+    // =================================================
+    // ①起動時にUIが「this.managerService.onAlarmRemoved」
+    // ②ManagerServiceが「onAlarmRemoved」
+    // ③AlarmListが「onRemoved」
+    // その後...
+    // ④AlarmListで「remove」
+    // ⑤AlarmListで「notifyRemoved」
+    // そして...
+    // ⑥UIの「this.executionService.stopAlarmMonitoring」
+    // =================================================
 
     /**
      * find は「条件に合う最初の1件を返す」
@@ -141,53 +154,5 @@ export class AlarmList {
 
     public setAll(alarms: Alarm[]): void {
         this.alarms = alarms;
-    }
-
-    /**
-     * アラームの状態変更
-     * @param now 
-     */
-    // public changeState(now: AlarmTime): AlarmRangEvent[] {
-        // const events: AlarmRangEvent[] = [];
-        // for (const alarm of this.alarms) 
-        // if (alarm.getTime().equals(now)) {
-        // alarm.isRing(); // ← 状態変更はここ
-        // events.push(
-        // new AlarmRangEvent(alarm.getId(), now)
-        //  );
-        // }
-        //   }
-        //  return events;
-        // }
-    // }
-
-    private validateLimit(): void {
-        // ーーー例外エラーverーーー
-        // if (this.alarms.length >= 5) {
-        //   throw new AlarmLimitExceededError();
-        // }
-        // ーーーResult型ーーー
-        // if (this.alarms.length >= 5) {
-        // return { ok: false, error: new AlarmLimitExceededError() };
-        // }
-    }
-
-    public validateDuplicate(time: AlarmTime): void {
-        // ーーー例外エラーverーーー
-        // const exists = this.alarms.some(a =>
-        //   a.getTime().equals(time)
-        // );
-        // if (exists) {
-        //   throw new DuplicateAlarmTimeError();
-        // }
-        // ーーーResult型ーーー
-        // const exists = this.alarms.some(a =>
-        // a.getTime().equals(time)
-        // );
-        // if (exists) {
-        // return { ok: false, error: new DuplicateAlarmTimeError() };
-        // }
-        // this.alarms.push(alarm);
-        // return { ok: true, value: undefined };
     }
 }

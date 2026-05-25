@@ -20,40 +20,27 @@ export class Alarm {
                 : State.ENABLED;
     }
 
-    /**
-     * 有効化処理
-     */
-    public enable(): void { }
-    // { this.state = AlarmState.ENABLED; }
-
-    /**
-     * 無効化処理(toggle切り替えver)
-     */
-    public disable(): void { }
-    // { this.state = AlarmState.Disabled;}
-
     // 汎用化以外での状態管理⇩⇩
     public isActive(): boolean {
         return this.state === State.ENABLED;
     }
 
-    // 状態を「確認する」
-    public isRing(): void { }
-    // if (this.state === AlarmState.ENABLED) {
-    //   this.state = AlarmState.Ringing;
-    // }
+    // 鳴動開始
+    public startRinging(): void {
+        if (this.state !== State.ENABLED) {
+            return
+        }
 
-    // 状態を「変更する」
-    public isRinging(): boolean {
-        return this.state === State.RINGING;
+        this.state = State.RINGING;
     }
 
-    // 状態を「確認する」
-    public isStop(): void { }
-    // { this.state = AlarmState.Disabled;}
+    // 鳴動停止
+    public stopRinging(): void {
+        if (this.state !== State.RINGING) {
+            return
+        }
 
-    public isStopped(): boolean {
-        return this.state === State.DISABLED;
+        this.state = State.DISABLED;
     }
 
     public isSelected(): boolean {
