@@ -6,12 +6,14 @@ import { TimeScheduler } from "./service/TimeScheduler";
 import { SoundPlayer } from "./infra/SoundPlayer";
 import { ManagerService } from "./service/ManagerService";
 import { ExecutionService } from "./service/ExecutionService";
-import { AddDisplay, ListDisplay, RuleDisplay, EditDisplay } from "./display/DomDisplay";
+import { AddDisplay, ListDisplay, RuleDisplay, EditDisplay, ModalDisplay } from "./display/DomDisplay";
+import { DisplayGroup } from "./display/DisplayGroup";
 import { AlarmDisplayController } from "./controller/AlarmDisplayController";
 import { type ButtonType, Buttons } from "./domain/ButtonType";
 import { Button } from "./common/Button";
 import { ScreenNavigator } from "./common/ScreenNavigator";
 import { Screen } from "./common/Screen";
+import { ModalService } from "./domain/ModalService";
 
 // 生成順は下位レイヤーから
 
@@ -26,19 +28,20 @@ const sound = new SoundPlayer();
 const managerService = new ManagerService(alarmList, dataManager);
 const executionService = new ExecutionService(scheduler, sound)
 
-const editDisplay = new EditDisplay();
-const addDisplay = new AddDisplay();
+const modalService = new ModalService();
+
+const editDisplay = new EditDisplay(modalService);
+const addDisplay = new AddDisplay(modalService);
 const listDisplay = new ListDisplay();
 const ruleDisplay = new RuleDisplay();
+const modalDisplay = new ModalDisplay();
+const display = new DisplayGroup(editDisplay, addDisplay, listDisplay, ruleDisplay, modalDisplay);
 
 const ui = new AlarmDisplayController(
-  editDisplay,
-  addDisplay,
-  listDisplay,
-  ruleDisplay,
+  display,
   managerService,
   executionService,
-  // buttons,
+  // デフォルト値は記載しない場合、初期値が入るので問題なし。
 );
 
 // ① 親要素を取得
@@ -120,7 +123,9 @@ function createButton(type: ButtonType): Button {
 
 // ーーーーーーーーーー
 
-import './style.css';
+import "./styles/common.css";
+import "./styles/alarm.css";
+// import "./styles/timer.css";
 
 /* ─── ビュー要素を取得 ─── */
 const viewHome = document.getElementById('view-home') as HTMLElement | null;
@@ -178,3 +183,8 @@ timerNavLinks.forEach((link) => {
         }
     })
 })
+
+const loading = document.getElementById('loading');
+if (loading) { 
+  loading.remove(); // 幕を外す
+}
