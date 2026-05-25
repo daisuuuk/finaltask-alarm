@@ -14,7 +14,7 @@ export class TimeFactory {
         });
     }
 
-    public create(hour: number, minute: number): AlarmTime {
+    public createAlarmTimeSelect(hour: number, minute: number): AlarmTime {
         return new AlarmTime(hour, minute);
     }
 }
