@@ -3,10 +3,15 @@ import { Alarm } from "../domain/Alarm";
 import { LocalStorageManager } from "./LocalStorageManager";
 import { type AlarmDTO, toDTO, fromDTO } from "../domain/AlarmMapper";
 
+export interface IAlarmDataManager {
+    saveAll(alarms: Alarm[]): void;
+    loadAll(): Alarm[];
+}
+
 /**
  * データの保存・削除・読み込みの役割
  */
-export class AlarmDataManager {
+export class AlarmDataManager implements IAlarmDataManager {
     // private storage: LocalStorageManager;
     public constructor(private storage: LocalStorageManager) { }
 
@@ -40,34 +45,6 @@ export class AlarmDataManager {
         const dtoList = JSON.parse(json) as AlarmDTO[];
         // ④DTOをAlarm[]へ復元
         return dtoList.map(fromDTO);
-    }
-
-    /**
-     * アラームのデータを全件削除する為のメソッド
-     */
-    // public resetAll(): Alarm[] {
-        // 下記１行は保存前の各処理⇩⇩
-        // - this.alarms = [];
-        // - this.persistToStorage();
-    // }
-
-    /**
-     * アラームのデータを１件削除する為のメソッド
-     * @param id 
-     */
-    public delete(id: string): void {
-        // { 下記１行は保存前の各処理⇩⇩
-        // - alarms.filter()
-        // 丸ごと上書き保存 ⇩⇩⇩
-        // - this.persistToStorage()
-        // }
-    }
-
-    /**
-     * 永続的に保存する 共通メソッド 
-     */
-    private persistToStorage(): void {
-        // { this.storage.saveAlarmData(this.alarms)}
     }
 
 }
