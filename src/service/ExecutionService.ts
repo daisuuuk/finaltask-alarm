@@ -1,7 +1,7 @@
 
 import { TimeScheduler } from "./TimeScheduler";
 import { type ISoundPlayer } from "../common/ISoundPlayer";
-import type { Alarm } from "../domain/Alarm";
+import type { Alarm } from "../domain/alarm/Alarm";
 
 export type TimeReachedListener = (alarm: Alarm) => void;
 
@@ -42,9 +42,16 @@ export class ExecutionService {
         }
 
         alarm.startRinging();
+        // OFFのアラームは省くために必要
+        if (!alarm.isRinging()) {
+            return;
+        }
+
         this.currentRinging = alarm;
         this.sound.startSound();
         // listener が登録されていれば呼ぶ
+        // コールバック関数(=listener)が未登録でも安全に動く設計
+        // UI側でlistener登録しているので仕様通りではある
         console.log("listener:", this.listener);
         if (this.listener !== undefined) {
             this.listener(alarm);

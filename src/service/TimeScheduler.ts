@@ -1,5 +1,5 @@
 
-import { Alarm } from "../domain/Alarm";
+import { Alarm } from "../domain/alarm/Alarm";
 
 type CallBackMold = (alarm: Alarm) => void
 
@@ -21,14 +21,10 @@ export class TimeScheduler {
         this.stopMonitoring(id);
 
         // ①アラームの時間・分を取得し = alarm.getTime()
-        // ②現在時刻との差をミリ秒で返す = toMillisecondsFromNow()
-        const delay = alarm.getTime().toMillisecondsFromNow();
+        // ②現在時刻との差をミリ秒で返す = toMillisecondsFromNow(Date.now())
+        // ❶「Date.now()」 = ミリ秒（1970/1/1 00:00:00からの経過時間）= 現在時刻(ms)
+        const delay = alarm.getTime().toMillisecondsFromNow(Date.now());
         console.log(`delay: ${delay}ms`);
-
-        if (delay <= 0) {
-            console.warn("過去の時刻です。タイマーをセットしません。");
-            return; // ← ガードを追加
-        }
 
         // window.setTimeout と記載している理由(number型 → ブラウザ前提)
         // ① ブラウザの機能を使っていると明示するため
@@ -44,11 +40,12 @@ export class TimeScheduler {
 
     public stopMonitoring(id: string): void {
         const alarmTimerId = this.alarms.get(id);
-        // alarmTimerId が 0 の場合でも falsy になってしまうため(= 0 でも正しく処理させるため)
-        if (alarmTimerId !== undefined) {
-            clearTimeout(alarmTimerId);
-            this.alarms.delete(id);
+        if (alarmTimerId === undefined) {
+            return;
         }
+
+        clearTimeout(alarmTimerId);
+        this.alarms.delete(id);
     }
 
     /**

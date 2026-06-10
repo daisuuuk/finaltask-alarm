@@ -1,7 +1,7 @@
 
-import { Alarm } from "../domain/Alarm";
-import { AlarmTime } from "../domain/AlarmTime";
-import { AlarmList } from "../domain/AlarmList";
+import { Alarm } from "../domain/alarm/Alarm";
+import { AlarmTime } from "../domain/alarm/AlarmTime";
+import { AlarmList } from "../domain/alarm/AlarmList";
 import { type IAlarmDataManager } from "../infra/AlarmDataManager";
 import { type Result, type AlarmViolationType, type IManagerService } from "../controller/AlarmDisplayController";
 
