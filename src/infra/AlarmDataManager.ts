@@ -1,7 +1,7 @@
 
-import { Alarm } from "../domain/Alarm";
+import { Alarm } from "../domain/alarm/Alarm";
 import { LocalStorageManager } from "./LocalStorageManager";
-import { type AlarmDTO, toDTO, fromDTO } from "../domain/AlarmMapper";
+import { type AlarmDTO, AlarmMapper } from "../domain/mapper/AlarmMapper";
 
 export interface IAlarmDataManager {
     saveAll(alarms: Alarm[]): void;
@@ -26,7 +26,7 @@ export class AlarmDataManager implements IAlarmDataManager {
         // }
 
         // ①Alarm[]をDTOへ変換
-        const dtoList = alarms.map(toDTO);
+        const dtoList = alarms.map(AlarmMapper.toDTO);
         // ②オブジェクトを文字列へ(扱える形に)
         const json = JSON.stringify(dtoList);
         // ③キーと値のペアで保存する
@@ -44,7 +44,7 @@ export class AlarmDataManager implements IAlarmDataManager {
         // ③文字列にしたものを、元のオブジェクトへ戻す
         const dtoList = JSON.parse(json) as AlarmDTO[];
         // ④DTOをAlarm[]へ復元
-        return dtoList.map(fromDTO);
+        return dtoList.map(AlarmMapper.fromDTO);
     }
 
 }
