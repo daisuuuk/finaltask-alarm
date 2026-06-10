@@ -2,10 +2,11 @@
 import { TimeScheduler } from "./TimeScheduler";
 import { type ISoundPlayer } from "../common/ISoundPlayer";
 import type { Alarm } from "../domain/alarm/Alarm";
+import { type IExecutionService } from "../controller/AlarmDisplayController";
 
 export type TimeReachedListener = (alarm: Alarm) => void;
 
-export class ExecutionService {
+export class ExecutionService implements IExecutionService {
     // 外部（UIなど）にイベントを伝える仕組み
     // 「通知するだけ」で誰が受け取るか知らない
     private listener?: TimeReachedListener;
