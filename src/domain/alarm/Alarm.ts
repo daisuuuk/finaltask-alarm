@@ -13,6 +13,9 @@ export class Alarm {
         private selected: boolean = false,
     ) { }
 
+    /**
+     * アラームのtoggleボタンの状態を変更する
+     */
     public toggleOnOff(): void {
         this.state =
             this.state === State.ENABLED
@@ -20,12 +23,25 @@ export class Alarm {
                 : State.ENABLED;
     }
 
-    // 汎用化以外での状態管理⇩⇩
+    /**
+     * アラームが有効化状態であるということ
+     * @returns boolean
+     */
     public isActive(): boolean {
         return this.state === State.ENABLED;
     }
 
-    // 鳴動開始
+    /**
+     * アラームが鳴動状態であるということ
+     * @returns boolean
+     */
+    public isRinging(): boolean {
+        return this.state === State.RINGING;
+    }
+
+    /**
+     * アラームの状態を鳴動中に変更する
+     */
     public startRinging(): void {
         if (this.state !== State.ENABLED) {
             return
@@ -34,7 +50,9 @@ export class Alarm {
         this.state = State.RINGING;
     }
 
-    // 鳴動停止
+    /**
+     * アラームの状態を無効化状態(停止)に変更する
+     */
     public stopRinging(): void {
         if (this.state !== State.RINGING) {
             return
@@ -43,30 +61,55 @@ export class Alarm {
         this.state = State.DISABLED;
     }
 
+    /**
+     * アラームが選択されている状態であるということ
+     * @returns boolean
+     */
     public isSelected(): boolean {
         return this.selected;
     }
 
-    public toggleSelected(): void {
-        this.selected = !this.selected;
-    }
+    // public toggleSelected(): void {
+    //     this.selected = !this.selected;
+    // }
 
+    /**
+     * アラームの「時間・分」を書き換える
+     * @param time 
+     */
     public updateTime(time: AlarmTime): void {
         this.time = time;
     }
 
+    /**
+     * AlarmTimeクラスの「時間・分」を取得する
+     * @returns AlarmTime
+     */
     public getTime(): AlarmTime {
         return this.time;
     }
 
+    /**
+     * アラームidを取得する
+     * @returns string
+     */
     public getId(): string {
         return this.alarmId;
     }
 
+    /**
+     * アラームの状態を取得する
+     * @returns AlarmState
+     */
     public getState(): AlarmState {
         return this.state;
     }
 
+    /**
+     * AlarmTimeクラスの「時間・分」からアラームを生成する(id・状態・選択状態なども)
+     * @param time 
+     * @returns Alarm
+     */
     public static createAlarm(time: AlarmTime): Alarm {
         return new Alarm(
             time,

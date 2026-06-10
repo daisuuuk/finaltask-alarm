@@ -1,7 +1,8 @@
 
-import { type AlarmCount } from "../controller/AlarmDisplayController";
+import { type AlarmCount } from "../../controller/AlarmDisplayController";
 
-// uiState.ts（など）
+// alarmsCount = アラーム設定数
+// selectedCount = アラーム選択数
 export function getButtonCount(count: AlarmCount) {
     return {
         canAdd: count.alarmsCount < 5,

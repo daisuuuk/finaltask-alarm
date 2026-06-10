@@ -1,10 +1,10 @@
 
 import { Alarm } from "./Alarm";
 import { AlarmTime } from "./AlarmTime";
-import { DuplicateAlarmTimeViolation } from "../violation/DuplicateAlarmTimeViolation";
-import { AlarmLimitExceededViolation } from "../violation/AlarmLimitExceededViolation";
-import { type Result, type AlarmViolationType } from "../controller/AlarmDisplayController";
-import { type AlarmRemovedListener } from "../service/ManagerService";
+import { DuplicateAlarmTimeViolation } from "../../violation/DuplicateAlarmTimeViolation";
+import { AlarmLimitExceededViolation } from "../../violation/AlarmLimitExceededViolation";
+import { type Result, type AlarmViolationType } from "../../controller/AlarmDisplayController";
+import { type AlarmRemovedListener } from "../../service/ManagerService";
 
 /**
  * アラームの集合管理(メモリ上管理)
@@ -142,16 +142,29 @@ export class AlarmList {
         return this.alarms.length < this.MAX_SET_LIMIT;
     }
 
+    /**
+     * アラーム時刻が重複しているかどうかを「boolean」で返す
+     * @param time 
+     * @returns boolean
+     */
     private isAlarmDuplicate(time: AlarmTime): boolean {
         return this.alarms.some(alarm =>
             alarm.getTime().equals(time)
         );
     }
 
+    /**
+     * AlarmListクラスから、アラーム集合を取得する
+     * @returns Alarm[]
+     */
     public getAll(): Alarm[] {
         return this.alarms;
     }
 
+    /**
+     * アラーム集合をセットする(リロード時など再表示の為)
+     * @param alarms 
+     */
     public setAll(alarms: Alarm[]): void {
         this.alarms = alarms;
     }
