@@ -1,5 +1,5 @@
 
-import { AlarmTime } from "../../domain/AlarmTime";
+import { AlarmTime } from "../../domain/alarm/AlarmTime";
 
 export class TimeFactory {
     public createOptions(max: number): HTMLOptionElement[] {

@@ -1,12 +1,12 @@
 
 import { DisplayGroup } from "../display/DisplayGroup";
-import { type ButtonType, Buttons } from "../domain/ButtonType";
-import { Alarm } from "../domain/Alarm";
+import { type ButtonType, Buttons } from "../domain/alarm/ButtonType";
+import { Alarm } from "../domain/alarm/Alarm";
 import { Button } from "../common/Button";
-import { getButtonCount } from "../domain/AlarmCount";
+import { getButtonCount } from "../domain/alarm/AlarmCount";
 import { SetUpEventBinder } from "./binder/SetUpEventBinder";
 import { TimeFactory } from "./factory/TimeSelectFactory";
-import { AlarmTime } from "../domain/AlarmTime";
+import { AlarmTime } from "../domain/alarm/AlarmTime";
 import { DuplicateAlarmTimeViolation } from "../violation/DuplicateAlarmTimeViolation";
 import { AlarmLimitExceededViolation } from "../violation/AlarmLimitExceededViolation";
 import { type TimeReachedListener } from "../service/ExecutionService";
@@ -42,7 +42,6 @@ export interface IManagerService {
     canAddAlarm(): boolean;
     toggleAlarm(id: string): void;
     deleteMany(ids: string[]): void;
-    toggleAlarm(id: string): void;
     onAlarmRemoved(listener: AlarmRemovedListener): void;
 }
 
@@ -51,6 +50,7 @@ export interface IExecutionService {
     startAlarmMonitoring(alarm: Alarm): void;
     stopAlarmMonitoring(id: string): void;
     timeReached(listener: TimeReachedListener): void;
+    handleTimeReached(alarm: Alarm): void;
 }
 
 export class AlarmDisplayController {
