@@ -1,7 +1,7 @@
 
 import { LocalStorageManager } from "./infra/LocalStorageManager"
 import { AlarmDataManager } from "./infra/AlarmDataManager";
-import { AlarmList } from "./domain/AlarmList";
+import { AlarmList } from "./domain/alarm/AlarmList";
 import { TimeScheduler } from "./service/TimeScheduler";
 import { SoundPlayer } from "./infra/SoundPlayer";
 import { ManagerService } from "./service/ManagerService";
@@ -9,11 +9,11 @@ import { ExecutionService } from "./service/ExecutionService";
 import { AddDisplay, ListDisplay, RuleDisplay, EditDisplay, ModalDisplay } from "./display/DomDisplay";
 import { DisplayGroup } from "./display/DisplayGroup";
 import { AlarmDisplayController } from "./controller/AlarmDisplayController";
-import { type ButtonType, Buttons } from "./domain/ButtonType";
+import { type ButtonType, Buttons } from "./domain/alarm/ButtonType";
 import { Button } from "./common/Button";
 import { ScreenNavigator } from "./common/ScreenNavigator";
 import { Screen } from "./common/Screen";
-import { ModalService } from "./domain/ModalService";
+import { ModalService } from "./service/ModalService";
 
 // 生成順は下位レイヤーから
 
