@@ -1,8 +1,8 @@
 
-import { Alarm } from "../domain/Alarm";
+import { Alarm } from "../domain/alarm/Alarm";
 import { type IAddDisplay, type IDisplay, type IListDisplay, type IRuleDisplay, type IEditDisplay, type IModalDisplay } from "./IDisplay";
 import { TimeFormatter } from "../common/TimeFormatter";
-import { ModalService } from "../domain/ModalService";
+import { ModalService } from "../service/ModalService";
 
 export class DomDisplay implements IDisplay {
     private formatter: TimeFormatter;
@@ -52,7 +52,6 @@ export class AddDisplay implements IAddDisplay {
      * @returns 
      */
     // ③ 追加画面を描画
-    // renderAdd(onSave: () => void): void {
     renderAdd(): void {
         const hour = document.getElementById("alarm-hour") as HTMLSelectElement;
         const minute = document.getElementById("alarm-minute") as HTMLSelectElement;
@@ -124,7 +123,6 @@ export class ListDisplay implements IListDisplay {
             // ❷それを"HH:MM" 形式にする
             const text = formatter.formatHourMinute(time);
             // ❸それらをアラーム１行に表示する書き方
-            // <li class="alarm-item ${alarm.isSelected() ? "selected" : ""}" data-id="${alarm.getId()}">
             return `
             <li class="alarm-item ${selected}" data-id="${alarm.getId()}"> 
                 <span>${text}</span> 

@@ -1,5 +1,5 @@
 
-import { Alarm } from "../domain/Alarm";
+import { Alarm } from "../domain/alarm/Alarm";
 
 export interface IDisplay {
     renderInitial(): void;
@@ -12,7 +12,6 @@ export interface IEditDisplay {
 }
 
 export interface IAddDisplay {
-    // renderAdd(onSave: () => void): void
     renderAdd(): void;
     renderClose(): void;
 }
@@ -23,7 +22,6 @@ export interface IListDisplay {
 
 export interface IRuleDisplay {
     renderRule(message: string): void;
-    // clearRule(): void;
 }
 
 export interface IModalDisplay {
