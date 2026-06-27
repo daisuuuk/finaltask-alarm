@@ -30,7 +30,7 @@ describe("--------------------ドメイン層「Alarm」--------------------", (
         expect(alarm.isActive()).toBe(true);
     });
 
-    test("No. 境界値: 未来時刻なら正の値になる", () => {
+    test("No. 境界値: 現時刻と比較して未来時刻なら正の値になる", () => {
         const base = new Date("2026-01-01T10:00:00").getTime();
         const alarm = new AlarmTime(10, 1);
 
@@ -39,18 +39,18 @@ describe("--------------------ドメイン層「Alarm」--------------------", (
         expect(delay).toBe(60 * 1000);
     });
 
-    test("No. 境界値: 過去時刻は翌日になる", () => {
+    test("No. 境界値: 現時刻と比較して過去時刻は翌日になる", () => {
         const base = new Date("2026-01-01T10:00:00").getTime();
         const alarm = new AlarmTime(9, 59);
 
         const delay = alarm.toMillisecondsFromNow(base);
 
         // 翌日の9:59までの時間（＝23時間59分）」になっているかを確認
-        // 23時間 = 1380分 + 59分 = 1439分
+        // 1380分(23時間) + 59分 = 1439分  × 60秒 × 1000ms
         expect(delay).toBe((23 * 60 + 59) * 60 * 1000);
     });
 
-    test("No. 境界値: 同一時刻は翌日になる", () => {
+    test("No. 境界値: 現時刻と同一時刻は翌日になる", () => {
         const base = new Date("2026-01-01T10:00:00").getTime();
         const alarm = new AlarmTime(10, 0);
 
