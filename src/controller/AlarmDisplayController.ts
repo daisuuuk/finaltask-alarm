@@ -50,7 +50,7 @@ export interface IExecutionService {
     startAlarmMonitoring(alarm: Alarm): void;
     stopAlarmMonitoring(id: string): void;
     timeReached(listener: TimeReachedListener): void;
-    handleTimeReached(alarm: Alarm): void;
+    // handleTimeReached(alarm: Alarm): void;
 }
 
 export class AlarmDisplayController {
