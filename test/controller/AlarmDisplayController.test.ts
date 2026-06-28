@@ -8,6 +8,7 @@ import { AlarmDisplayController, type IManagerService, type IExecutionService, R
 import { getButtonCount } from "../../src/domain/alarm/AlarmCount";
 import { DisplayGroup } from "../../src/display/DisplayGroup";
 import { AlarmTime } from '../../src/domain/alarm/AlarmTime';
+import { Alarm } from "../../src/domain/alarm/Alarm";
 
 // 「AlarmDisplayController」のダミーを作成
 // デフォルト値は定義不要
@@ -133,17 +134,29 @@ describe("--------------------UI層--------------------", () => {
             modal: { renderOpenAlertModal: vi.fn(), renderCloseAlertModal: vi.fn() },
         } satisfies DisplayGroup;
 
+        const mockExecutionService: IExecutionService = {
+            stopAlarm: vi.fn(),
+            startAlarmMonitoring: vi.fn(),
+            stopAlarmMonitoring: vi.fn(),
+            timeReached: vi.fn(),
+        };
+
+        const alarm = Alarm.createAlarm(new AlarmTime(10, 30));
+
         // createMockService の全てのメソッドがデフォルトで入る
         const mockService = createMockService({
             saveAlarm: vi.fn().mockReturnValue({
                 ok: true,
-                value: undefined
+                value: alarm,
             })
         });
+
         const ui = new AlarmDisplayController(
             mockDisplay,
             mockService,
-            {} as IExecutionService
+            // {} as IExecutionService
+            // startAlarmMonitoringを呼ぶ必要がある為
+            mockExecutionService,
         );
 
         const mockTime = {
