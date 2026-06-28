@@ -34,7 +34,7 @@ export type AlarmCount = {
 type Mode = "add" | "edit";
 
 export interface IManagerService {
-    saveAlarm(time: AlarmTime): Result<void, AlarmViolationType>;
+    saveAlarm(time: AlarmTime): Result<Alarm, AlarmViolationType>;
     editAlarm(id: string, time: AlarmTime): Result<void, AlarmViolationType>;
     getAlarms(): Alarm[];
     findById(id: string): Alarm | undefined;
@@ -109,7 +109,10 @@ export class AlarmDisplayController {
         const time = alarm.getTime();
         this.display.modal.renderOpenAlertModal({
             title: `アラーム (${time.hour}:${String(time.minute).padStart(2, "0")})`,
-            onStop: () => this.executionService.stopAlarm(),
+            onStop: () => { 
+                this.executionService.stopAlarm();
+                this.updateUi();
+            }
         });
     }
 
@@ -131,7 +134,7 @@ export class AlarmDisplayController {
         //     }))
         // );
         const alarm = this.managerService.findById(id);
-        if (!alarm) { 
+        if (!alarm) {
             return;
         }
 
@@ -238,14 +241,14 @@ export class AlarmDisplayController {
     private handleSaveButton(time: AlarmTime): void {
         if (this.mode === "add") {
             const success = this.handleAddCase(time);
-            if (!success) { 
+            if (!success) {
                 return;
             }
         }
 
         if (this.mode === "edit" && this.editingId) {
             const success = this.handleEditCase(time);
-            if (!success) { 
+            if (!success) {
                 return;
             }
         }
@@ -265,6 +268,12 @@ export class AlarmDisplayController {
             return false;
         }
 
+        const alarm = result.value;
+
+        if (alarm.isActive()) {
+            this.executionService.startAlarmMonitoring(alarm);
+        }
+
         return true;
     }
 
@@ -278,6 +287,7 @@ export class AlarmDisplayController {
         if (result.ok === false) {
             if (result.error instanceof DuplicateAlarmTimeViolation) {
                 this.display.rule.renderRule(result.error.message);
+                alert("同時刻は設定できません！！！");
             }
             return false;
         }
