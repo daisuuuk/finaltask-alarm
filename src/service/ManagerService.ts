@@ -106,7 +106,7 @@ export class ManagerService implements IManagerService {
      * @remark
      * - 保存できない場合は
      */
-    public saveAlarm(time: AlarmTime): Result<void, AlarmViolationType> {
+    public saveAlarm(time: AlarmTime): Result<Alarm, AlarmViolationType> {
         // ①アラーム生成
         const alarm = Alarm.createAlarm(time);
 
@@ -122,7 +122,7 @@ export class ManagerService implements IManagerService {
         // ③add()で箱へ追加したアラームを保存する
         this.dataManager.saveAll(this.alarmList.getAll());
 
-        return { ok: true, value: undefined };
+        return { ok: true, value: alarm };
     }
 
     public getAlarms(): Alarm[] {
