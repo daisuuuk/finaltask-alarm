@@ -2,7 +2,7 @@
 
 - アラーム機能とタイマー機能(アラーム機能担当)
 
-## 試験書
+## 試験書(主に項目)
 
 URL: https://docs.google.com/spreadsheets/d/1yObWBgq77wzWivKY-kdUEU5DDs4abDw8FaCYkb_0GyE/edit?hl=ja&gid=0#gid=0
 
